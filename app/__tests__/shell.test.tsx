@@ -22,6 +22,9 @@ describe("presentation site shell", () => {
       screen.getByRole("button", { name: "Next presentation step" }),
     ).toBeEnabled();
     expect(screen.getByAltText("BASF")).toBeInTheDocument();
+    for (const basfMark of screen.getAllByAltText(/BASF/)) {
+      expect(basfMark.closest("[data-reveal]")).toBeNull();
+    }
     expect(
       screen.getByAltText("Karlsruhe Institute of Technology (KIT)"),
     ).toBeInTheDocument();

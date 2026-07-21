@@ -13,7 +13,7 @@ export function Closing() {
             fragmented data, limited history, and high model-selection costs.
           </p>
         </div>
-        <Reveal at={1} className="closing-identities">
+        <div className="closing-identities">
           <div className="institution-lockups" aria-label="Project partners">
             <div className="brand-plate brand-plate-kit">
               <img
@@ -30,10 +30,12 @@ export function Closing() {
                   alt="BASF logo"
                 />
               </div>
-              <span className="brand-descriptor">Agricultural Solutions</span>
+              <Reveal at={1} className="closing-brand-descriptor">
+                <span className="brand-descriptor">Agricultural Solutions</span>
+              </Reveal>
             </div>
           </div>
-        </Reveal>
+        </div>
         <Reveal at={2} className="closing-team">
           <span>Data Science Challenge team</span>
           {CONTENT.team.map((member, index) => (

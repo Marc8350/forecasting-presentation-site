@@ -56,11 +56,6 @@ type PresentationDeckProps = {
   children: ReactNode;
 };
 
-function prefersReducedMotion() {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-}
-
 export function PresentationDeck({ slides, children }: PresentationDeckProps) {
   const [state, dispatch] = useReducer(
     presentationReducer,
@@ -69,7 +64,7 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
       typeof window === "undefined" ? "" : window.location.hash,
     ),
   );
-  const [reducedMotion, setReducedMotion] = useState(prefersReducedMotion);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const wheelLocked = useRef(false);
   const wheelLockTimeout = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
@@ -89,6 +84,7 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
 
     const updateReducedMotion = () => setReducedMotion(mediaQuery.matches);
     mediaQuery.addEventListener("change", updateReducedMotion);
+    updateReducedMotion();
     return () => mediaQuery.removeEventListener("change", updateReducedMotion);
   }, []);
 

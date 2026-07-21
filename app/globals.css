@@ -258,7 +258,7 @@ button, input, select { font: inherit; }
 
 /* Presentation experience */
 html {
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity;
   overscroll-behavior-y: none;
 }
 
@@ -275,7 +275,8 @@ body {
 [data-presentation-slide] {
   position: relative;
   min-height: 100dvh;
-  overflow: clip;
+  overflow-x: clip;
+  overflow-y: visible;
   scroll-margin-top: 4.75rem;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -893,7 +894,8 @@ body {
 /* Long-form product showcase */
 #platform,
 #evidence {
-  overflow: visible;
+  overflow-x: clip;
+  overflow-y: visible;
   scroll-snap-align: none;
   scroll-snap-stop: normal;
 }
@@ -1062,6 +1064,13 @@ body {
   background: rgb(255 255 255 / 6%);
 }
 
+.dialog-top button {
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
 /* Closing slide */
 .closing {
   display: grid;
@@ -1075,6 +1084,11 @@ body {
 
 .closing-identities {
   align-self: center;
+}
+
+.closing-brand-descriptor {
+  display: grid;
+  align-items: center;
 }
 
 .closing-team img {
@@ -1091,7 +1105,7 @@ body {
   box-shadow: 0 .5rem 1.8rem rgb(3 25 23 / 10%);
 }
 
-[data-presentation-deck] > div:last-child {
+[data-presentation-controls] {
   position: fixed;
   z-index: 220;
   right: max(1rem, calc((100vw - 76rem) / 2));
@@ -1109,7 +1123,7 @@ body {
   backdrop-filter: blur(16px);
 }
 
-[data-presentation-deck] > div:last-child::before {
+[data-presentation-controls]::before {
   position: absolute;
   right: .4rem;
   bottom: calc(100% + .55rem);
@@ -1121,7 +1135,7 @@ body {
   white-space: nowrap;
 }
 
-[data-presentation-deck] > div:last-child button {
+[data-presentation-controls] button {
   display: grid;
   width: 2.75rem;
   height: 2.75rem;
@@ -1134,18 +1148,18 @@ body {
   transition: color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
-[data-presentation-deck] > div:last-child button:hover:not(:disabled) {
+[data-presentation-controls] button:hover:not(:disabled) {
   color: var(--teal-950);
   background: var(--mint);
   transform: translateY(-1px);
 }
 
-[data-presentation-deck] > div:last-child button:disabled {
+[data-presentation-controls] button:disabled {
   opacity: .3;
   cursor: not-allowed;
 }
 
-[data-presentation-deck] > div:last-child output {
+[data-presentation-controls] output {
   min-width: 3.5rem;
   padding-inline: .35rem;
   color: rgb(255 255 255 / 78%);
@@ -1228,6 +1242,34 @@ body {
   }
 }
 
+@media (min-width: 47.5rem) and (max-height: 48rem) {
+  [data-presentation-slide] {
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+  }
+
+  .story-section,
+  .evidence-section {
+    display: block;
+    padding-block: 6.5rem 4.5rem;
+  }
+
+  .hero,
+  .closing {
+    min-height: auto;
+    align-content: start;
+    padding-top: 6.5rem;
+  }
+
+  .hero-grid {
+    align-self: start;
+  }
+
+  .hero-visual {
+    min-height: 28rem;
+  }
+}
+
 @media (max-width: 47.5rem) {
   html {
     scroll-snap-type: none;
@@ -1236,7 +1278,8 @@ body {
 
   [data-presentation-slide] {
     min-height: auto;
-    overflow: visible;
+    overflow-x: clip;
+    overflow-y: visible;
     scroll-margin-top: 4rem;
     scroll-snap-align: none;
     scroll-snap-stop: normal;
@@ -1521,12 +1564,18 @@ body {
     padding-top: 6.25rem;
   }
 
-  [data-presentation-deck] > div:last-child {
+  [data-presentation-controls] {
     right: .75rem;
     bottom: .75rem;
   }
 
-  [data-presentation-deck] > div:last-child::before {
+  [data-presentation-controls]::before {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  [data-presentation-controls]::before {
     display: none;
   }
 }

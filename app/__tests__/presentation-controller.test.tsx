@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { renderToStaticMarkup, renderToString } from "react-dom/server";
 import { PresentationControls } from "../components/presentation/PresentationControls";
 import { PresentationDeck } from "../components/presentation/PresentationDeck";
 import { PresentationSlide } from "../components/presentation/PresentationSlide";
@@ -136,29 +136,72 @@ describe("presentation controller", () => {
   it("exposes accessible presentation controls", () => {
     render(<TestDeck />);
 
-    expect(screen.getByRole("button", { name: "Previous presentation step" })).toBeDisabled();
+    const previous = screen.getByRole("button", { name: "Previous presentation step" });
+    expect(previous.closest("[data-presentation-controls]")).toBeInTheDocument();
+    expect(previous).toBeDisabled();
     expect(screen.getByText("1 / 2")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Next presentation step" }));
     expect(screen.getByRole("button", { name: "Previous presentation step" })).toBeEnabled();
   });
 
-  it("exposes the reduced-motion preference on the deck root", () => {
+  it("hydrates with stable reduced-motion markup before updating after mount", async () => {
+    const addEventListener = vi.fn();
     vi.stubGlobal(
       "matchMedia",
       vi.fn().mockReturnValue({
         matches: true,
         media: "(prefers-reduced-motion: reduce)",
-        addEventListener: vi.fn(),
+        addEventListener,
         removeEventListener: vi.fn(),
       }),
     );
 
-    render(<TestDeck />);
-    fireEvent.keyDown(window, { key: "ArrowRight" });
+    const serverMarkup = renderToString(<TestDeck />);
+    expect(serverMarkup).toContain('data-reduced-motion="false"');
 
-    expect(document.querySelector("[data-presentation-deck]")).toHaveAttribute(
+    const container = document.createElement("div");
+    container.innerHTML = serverMarkup;
+    document.body.appendChild(container);
+    expect(container.querySelector("[data-presentation-deck]")).toHaveAttribute(
       "data-reduced-motion",
-      "true",
+      "false",
     );
+
+    render(<TestDeck />, { container, hydrate: true });
+
+    await waitFor(() =>
+      expect(container.querySelector("[data-presentation-deck]")).toHaveAttribute(
+        "data-reduced-motion",
+        "true",
+      ),
+    );
+    expect(addEventListener).toHaveBeenCalledWith("change", expect.any(Function));
+  });
+
+  it("tracks reduced-motion preference changes and unsubscribes on unmount", () => {
+    let changeListener: (() => void) | undefined;
+    const removeEventListener = vi.fn();
+    const mediaQuery = {
+      matches: false,
+      media: "(prefers-reduced-motion: reduce)",
+      addEventListener: vi.fn((_type: string, listener: () => void) => {
+        changeListener = listener;
+      }),
+      removeEventListener,
+    };
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue(mediaQuery));
+
+    const { unmount } = render(<TestDeck />);
+    const deck = document.querySelector("[data-presentation-deck]");
+    expect(deck).toHaveAttribute("data-reduced-motion", "false");
+
+    act(() => {
+      mediaQuery.matches = true;
+      changeListener?.();
+    });
+    expect(deck).toHaveAttribute("data-reduced-motion", "true");
+
+    unmount();
+    expect(removeEventListener).toHaveBeenCalledWith("change", changeListener);
   });
 });

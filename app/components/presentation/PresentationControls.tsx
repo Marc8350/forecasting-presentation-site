@@ -9,7 +9,7 @@ export function PresentationControls() {
     state.revealStep === currentSlide?.revealCount;
 
   return (
-    <div>
+    <div data-presentation-controls>
       <button
         type="button"
         aria-label="Previous presentation step"
