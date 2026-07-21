@@ -126,12 +126,7 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
 
   useEffect(() => {
     const onWheel = (event: WheelEvent) => {
-      if (
-        isInteractiveTarget(event.target) ||
-        isInteractiveTarget(document.activeElement)
-      ) {
-        return;
-      }
+      if (isInteractiveTarget(event.target)) return;
 
       event.preventDefault();
       if (wheelGestureTimeout.current !== null) {

@@ -37,6 +37,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 function dispatchWheel(target: EventTarget, deltaY: number) {
@@ -138,6 +139,24 @@ describe("presentation controller", () => {
 
     expect(wheelEvent.defaultPrevented).toBe(false);
     expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "false");
+  });
+
+  it("sequences background wheel input while an interactive control has focus", () => {
+    vi.useFakeTimers();
+    render(<TestDeck />);
+    const interactiveControl = screen.getByRole("button", {
+      name: "Interactive test control",
+    });
+    const deck = document.querySelector("[data-presentation-deck]");
+    expect(deck).not.toBeNull();
+    interactiveControl.focus();
+
+    const wheelEvent = dispatchWheel(deck!, 45);
+    dispatchWheel(deck!, 80);
+
+    expect(wheelEvent.defaultPrevented).toBe(true);
+    expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "true");
+    expect(screen.getByTestId("slide-opening")).toHaveAttribute("data-active", "true");
   });
 
   it("clears the wheel gesture settle timer when the deck unmounts", () => {
