@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup, renderToString } from "react-dom/server";
 import { PresentationControls } from "../components/presentation/PresentationControls";
 import { PresentationDeck } from "../components/presentation/PresentationDeck";
@@ -33,6 +34,19 @@ afterEach(() => {
 });
 
 describe("presentation controller", () => {
+  it("marks presentation context consumers as client components", () => {
+    const contextConsumers = [
+      "../components/presentation/PresentationControls.tsx",
+      "../components/presentation/PresentationSlide.tsx",
+      "../components/presentation/Reveal.tsx",
+    ];
+
+    for (const relativePath of contextConsumers) {
+      const source = readFileSync(new URL(relativePath, import.meta.url), "utf8");
+      expect(source.startsWith('"use client";')).toBe(true);
+    }
+  });
+
   it("renders safely when window is unavailable", () => {
     vi.stubGlobal("window", undefined);
 

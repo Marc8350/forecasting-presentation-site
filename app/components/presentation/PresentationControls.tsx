@@ -1,3 +1,5 @@
+"use client";
+
 import { usePresentation } from "./PresentationDeck";
 
 export function PresentationControls() {
