@@ -20,7 +20,7 @@ export function Hero() {
               <div className="brand-plate brand-plate-basf">
                 <img
                   className="brand-mark brand-mark-basf"
-                  src="/assets/basf-logo.svg"
+                  src="/assets/basf-logo.png"
                   alt="BASF"
                 />
               </div>

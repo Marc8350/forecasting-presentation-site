@@ -21,8 +21,10 @@ describe("presentation site shell", () => {
     expect(
       screen.getByRole("button", { name: "Next presentation step" }),
     ).toBeEnabled();
-    expect(screen.getByAltText("BASF")).toBeInTheDocument();
-    for (const basfMark of screen.getAllByAltText(/BASF/)) {
+    const basfMarks = screen.getAllByAltText(/BASF/);
+    expect(basfMarks).toHaveLength(2);
+    for (const basfMark of basfMarks) {
+      expect(basfMark).toHaveAttribute("src", "/assets/basf-logo.png");
       expect(basfMark.closest("[data-reveal]")).toBeNull();
     }
     expect(
