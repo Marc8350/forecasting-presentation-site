@@ -208,7 +208,12 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
 
   return (
     <PresentationContext.Provider value={contextValue}>
-      {children}
+      <div
+        data-presentation-deck
+        data-reduced-motion={String(reducedMotion)}
+      >
+        {children}
+      </div>
     </PresentationContext.Provider>
   );
 }

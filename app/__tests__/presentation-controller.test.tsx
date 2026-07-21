@@ -141,4 +141,24 @@ describe("presentation controller", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next presentation step" }));
     expect(screen.getByRole("button", { name: "Previous presentation step" })).toBeEnabled();
   });
+
+  it("exposes the reduced-motion preference on the deck root", () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockReturnValue({
+        matches: true,
+        media: "(prefers-reduced-motion: reduce)",
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }),
+    );
+
+    render(<TestDeck />);
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+
+    expect(document.querySelector("[data-presentation-deck]")).toHaveAttribute(
+      "data-reduced-motion",
+      "true",
+    );
+  });
 });
