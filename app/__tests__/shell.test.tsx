@@ -17,5 +17,15 @@ describe("presentation site shell", () => {
         name: /interactive forecasting platform/i,
       }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "A holistic GenAI opportunity" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Insecticides")).toBeInTheDocument();
+    expect(
+      screen.getByText("Time-intensive model research"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /explore the platform/i }),
+    ).toHaveAttribute("href", "#platform");
   });
 });
