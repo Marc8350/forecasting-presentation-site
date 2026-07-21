@@ -2,6 +2,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ChallengeExplorer } from "../components/story/ChallengeExplorer";
 import { OpportunityExplorer } from "../components/story/OpportunityExplorer";
+import { BasfScope } from "../components/story/BasfScope";
+import { PlatformBlocks } from "../components/story/PlatformBlocks";
+import { CONTENT } from "../content/site-content";
 
 describe("story explorers", () => {
   it("explains a selected forecasting challenge", async () => {
@@ -31,5 +34,48 @@ describe("story explorers", () => {
     expect(screen.getByText(/technical and business stakeholders/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Explain" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Understand" })).toHaveAttribute("aria-pressed", "false");
+  });
+});
+
+describe("story scope and platform", () => {
+  it("states the BASF sales forecasting setting", () => {
+    render(<BasfScope />);
+
+    expect(screen.getByText(CONTENT.scopeStatement)).toBeInTheDocument();
+    for (const target of CONTENT.targets) {
+      expect(screen.getByText(target)).toBeInTheDocument();
+    }
+  });
+
+  it("defaults to the feature-building platform block", () => {
+    render(<PlatformBlocks />);
+
+    expect(
+      screen.getByText("Explore useful internal and external data sources."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Discover and build features" }),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("reveals the selected platform block in its ordered workflow", async () => {
+    const user = userEvent.setup();
+    render(<PlatformBlocks />);
+
+    await user.click(screen.getByRole("button", { name: "Model and evaluate" }));
+
+    expect(
+      screen.getByText(/foundation models with a few clicks/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/backtest, compare, rank/i)).toBeInTheDocument();
+    expect(screen.getByRole("list")).toContainElement(
+      screen.getByText(/backtest, compare, rank/i),
+    );
+    expect(
+      screen.getByRole("button", { name: "Model and evaluate" }),
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByRole("button", { name: "Discover and build features" }),
+    ).toHaveAttribute("aria-pressed", "false");
   });
 });
