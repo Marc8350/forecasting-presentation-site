@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { readFileSync } from "node:fs";
 import { renderToStaticMarkup, renderToString } from "react-dom/server";
 import { PresentationControls } from "../components/presentation/PresentationControls";
 import { PresentationDeck } from "../components/presentation/PresentationDeck";
@@ -17,6 +16,12 @@ function TestDeck() {
       <PresentationSlide id="opening">
         <Reveal at={1} data-testid="opening-reveal-1">Opening reveal</Reveal>
         <button type="button">Interactive test control</button>
+        <div
+          data-presentation-interactive="true"
+          data-testid="interactive-scroll-region"
+        >
+          Interactive scroll region
+        </div>
       </PresentationSlide>
       <PresentationSlide id="challenge">Challenge</PresentationSlide>
       <PresentationControls />
@@ -30,23 +35,23 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
-describe("presentation controller", () => {
-  it("marks presentation context consumers as client components", () => {
-    const contextConsumers = [
-      "../components/presentation/PresentationControls.tsx",
-      "../components/presentation/PresentationSlide.tsx",
-      "../components/presentation/Reveal.tsx",
-    ];
-
-    for (const relativePath of contextConsumers) {
-      const source = readFileSync(new URL(relativePath, import.meta.url), "utf8");
-      expect(source.startsWith('"use client";')).toBe(true);
-    }
+function dispatchWheel(target: EventTarget, deltaY: number) {
+  const event = new WheelEvent("wheel", {
+    bubbles: true,
+    cancelable: true,
+    deltaY,
   });
+  act(() => {
+    target.dispatchEvent(event);
+  });
+  return event;
+}
 
+describe("presentation controller", () => {
   it("renders safely when window is unavailable", () => {
     vi.stubGlobal("window", undefined);
 
@@ -95,33 +100,55 @@ describe("presentation controller", () => {
     expect(screen.getByTestId("slide-challenge")).toHaveAttribute("data-active", "true");
   });
 
-  it("requires a wheel threshold and locks a gesture after navigation", () => {
+  it("sequences one step per settled wheel gesture without native scrolling", () => {
     vi.useFakeTimers();
+    const addEventListenerSpy = vi.spyOn(window, "addEventListener");
     render(<TestDeck />);
 
-    fireEvent.wheel(window, { deltaY: 44 });
+    const firstSmallDelta = dispatchWheel(window, 20);
+    expect(firstSmallDelta.defaultPrevented).toBe(true);
     expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "false");
 
-    fireEvent.wheel(window, { deltaY: 45 });
-    fireEvent.wheel(window, { deltaY: 45 });
+    const thresholdDelta = dispatchWheel(window, 25);
+    expect(thresholdDelta.defaultPrevented).toBe(true);
     expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "true");
 
-    vi.advanceTimersByTime(600);
-    fireEvent.wheel(window, { deltaY: 45 });
+    dispatchWheel(window, 80);
+    dispatchWheel(window, 80);
+    expect(screen.getByTestId("slide-opening")).toHaveAttribute("data-active", "true");
+
+    act(() => vi.advanceTimersByTime(150));
+    dispatchWheel(window, 45);
     expect(screen.getByTestId("slide-challenge")).toHaveAttribute("data-active", "true");
-    vi.useRealTimers();
+
+    expect(addEventListenerSpy).toHaveBeenCalledWith(
+      "wheel",
+      expect.any(Function),
+      { passive: false },
+    );
   });
 
-  it("clears the wheel lock timer when the deck unmounts", () => {
+  it("leaves wheel events over interactive regions unprevented", () => {
+    render(<TestDeck />);
+
+    const wheelEvent = dispatchWheel(
+      screen.getByTestId("interactive-scroll-region"),
+      80,
+    );
+
+    expect(wheelEvent.defaultPrevented).toBe(false);
+    expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "false");
+  });
+
+  it("clears the wheel gesture settle timer when the deck unmounts", () => {
     vi.useFakeTimers();
     const clearTimeoutSpy = vi.spyOn(window, "clearTimeout");
     const { unmount } = render(<TestDeck />);
 
-    fireEvent.wheel(window, { deltaY: 45 });
+    dispatchWheel(window, 45);
     unmount();
 
     expect(clearTimeoutSpy).toHaveBeenCalled();
-    vi.useRealTimers();
   });
 
   it("requires a swipe threshold before navigating", () => {

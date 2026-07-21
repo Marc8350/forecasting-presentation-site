@@ -25,6 +25,9 @@ type PresentationContextValue = {
 const PresentationContext = createContext<PresentationContextValue | null>(null);
 export const PresentationSlideContext = createContext({ revealStep: 0 });
 
+const wheelStepThreshold = 45;
+const wheelGestureSettleMs = 120;
+
 const interactiveSelector = [
   "a",
   "button",
@@ -65,8 +68,9 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
     ),
   );
   const [reducedMotion, setReducedMotion] = useState(false);
-  const wheelLocked = useRef(false);
-  const wheelLockTimeout = useRef<number | null>(null);
+  const wheelDelta = useRef(0);
+  const wheelGestureActive = useRef(false);
+  const wheelGestureTimeout = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
   const next = useCallback(() => dispatch({ type: "NEXT" }), []);
@@ -124,18 +128,29 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
     const onWheel = (event: WheelEvent) => {
       if (
         isInteractiveTarget(event.target) ||
-        isInteractiveTarget(document.activeElement) ||
-        wheelLocked.current ||
-        Math.abs(event.deltaY) < 45
+        isInteractiveTarget(document.activeElement)
       ) {
         return;
       }
-      wheelLocked.current = true;
-      dispatch({ type: event.deltaY > 0 ? "NEXT" : "PREVIOUS" });
-      wheelLockTimeout.current = window.setTimeout(() => {
-        wheelLocked.current = false;
-        wheelLockTimeout.current = null;
-      }, 600);
+
+      event.preventDefault();
+      if (wheelGestureTimeout.current !== null) {
+        window.clearTimeout(wheelGestureTimeout.current);
+      }
+      wheelGestureTimeout.current = window.setTimeout(() => {
+        wheelDelta.current = 0;
+        wheelGestureActive.current = false;
+        wheelGestureTimeout.current = null;
+      }, wheelGestureSettleMs);
+
+      if (wheelGestureActive.current) return;
+
+      wheelDelta.current += event.deltaY;
+      if (Math.abs(wheelDelta.current) < wheelStepThreshold) return;
+
+      wheelGestureActive.current = true;
+      dispatch({ type: wheelDelta.current > 0 ? "NEXT" : "PREVIOUS" });
+      wheelDelta.current = 0;
     };
 
     const onTouchStart = (event: TouchEvent) => {
@@ -162,17 +177,19 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
       touchStartY.current = null;
     };
 
-    window.addEventListener("wheel", onWheel);
+    window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("touchstart", onTouchStart);
     window.addEventListener("touchend", onTouchEnd);
     return () => {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
-      if (wheelLockTimeout.current !== null) {
-        window.clearTimeout(wheelLockTimeout.current);
-        wheelLockTimeout.current = null;
+      if (wheelGestureTimeout.current !== null) {
+        window.clearTimeout(wheelGestureTimeout.current);
+        wheelGestureTimeout.current = null;
       }
+      wheelDelta.current = 0;
+      wheelGestureActive.current = false;
     };
   }, []);
 
