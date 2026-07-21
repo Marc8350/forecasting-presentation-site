@@ -1,109 +1,125 @@
 import { CONTENT } from "../content/site-content";
-
-const journey = [
-  ["01", "Ingest", "Validate sales history and schema"],
-  ["02", "Enrich", "Add weather, market, and crop signals"],
-  ["03", "Select", "Compare three model families"],
-  ["04", "Train", "Execute a transparent pipeline"],
-  ["05", "Evaluate", "Rank forecasts and backtests"],
-  ["06", "Explain", "Surface the strongest drivers"],
-  ["07", "Operationalize", "Export, register, and retrain"],
-] as const;
+import { PresentationSlide } from "./presentation/PresentationSlide";
+import { Reveal } from "./presentation/Reveal";
+import { BasfScope } from "./story/BasfScope";
+import { ChallengeExplorer } from "./story/ChallengeExplorer";
+import { OpportunityExplorer } from "./story/OpportunityExplorer";
+import { PlatformBlocks } from "./story/PlatformBlocks";
 
 export function StorySections() {
   return (
     <>
-      <section className="story-section challenge-section" id="challenge" aria-labelledby="challenge-title">
+      <PresentationSlide
+        id="challenge"
+        className="story-section challenge-section"
+      >
         <div className="page-shell">
-          <div className="section-kicker"><span>01</span><p>The business challenge</p></div>
+          <div className="section-kicker">
+            <span>01</span>
+            <p>The business challenge</p>
+          </div>
           <div className="section-heading split-heading">
-            <h2 id="challenge-title">Forecasting is more than choosing a model.</h2>
+            <h2 id="challenge-title">
+              Forecasting is more than choosing a model.
+            </h2>
             <p>
-              Conventional forecasting often begins with proprietary history
-              and ends with a model score. The difficult work happens in
-              between: finding signals, validating assumptions, and turning
+              The difficult work happens between sales history and a model
+              score: finding signals, validating assumptions, and turning
               results into decisions.
             </p>
           </div>
-          <div className="challenge-grid">
-            {CONTENT.challenges.map((challenge, index) => (
-              <article className="challenge-card" key={challenge.id}>
-                <span>0{index + 1}</span>
-                <h3>{challenge.title}</h3>
-                <p>{challenge.explanation}</p>
-              </article>
-            ))}
-          </div>
+          <Reveal at={1}>
+            <ChallengeExplorer />
+          </Reveal>
+          <Reveal at={2} className="story-takeaway">
+            <p>
+              A useful platform must reduce all four constraints without hiding
+              the evidence behind a recommendation.
+            </p>
+          </Reveal>
         </div>
-      </section>
+      </PresentationSlide>
 
-      <section className="story-section opportunity-section" id="opportunity" aria-labelledby="opportunity-title">
+      <PresentationSlide
+        id="opportunity"
+        className="story-section opportunity-section"
+      >
         <div className="page-shell opportunity-grid">
           <div className="opportunity-copy">
-            <div className="section-kicker light"><span>02</span><p>The opportunity</p></div>
+            <div className="section-kicker light">
+              <span>02</span>
+              <p>The opportunity</p>
+            </div>
             <h2 id="opportunity-title">{CONTENT.opportunity.title}</h2>
             <p className="large-copy">{CONTENT.opportunity.body}</p>
-            <div className="opportunity-pill-row">
+            <Reveal at={2} className="opportunity-pill-row">
               <span>Transformer forecasting</span>
               <span>Agentic research support</span>
               <span>Explainable decisions</span>
-            </div>
+            </Reveal>
           </div>
-          <div className="opportunity-orbit" aria-label="AI-assisted forecasting lifecycle">
-            <div className="orbit-center"><strong>GenAI</strong><span>across the lifecycle</span></div>
-            <div className="orbit-node orbit-a">Understand</div>
-            <div className="orbit-node orbit-b">Research</div>
-            <div className="orbit-node orbit-c">Forecast</div>
-            <div className="orbit-node orbit-d">Explain</div>
-          </div>
+          <Reveal at={1}>
+            <OpportunityExplorer />
+          </Reveal>
         </div>
-      </section>
+      </PresentationSlide>
 
-      <section className="story-section scope-section" id="scope" aria-labelledby="scope-title">
+      <PresentationSlide id="scope" className="story-section scope-section">
         <div className="page-shell">
-          <div className="section-kicker"><span>03</span><p>Forecasting scope</p></div>
+          <div className="section-kicker">
+            <span>03</span>
+            <p>Forecasting scope</p>
+          </div>
           <div className="section-heading split-heading">
-            <h2 id="scope-title">Five categories. Different drivers. One system.</h2>
+            <h2 id="scope-title">
+              Five categories. Different drivers. One system.
+            </h2>
             <p>
-              The workflow stays consistent while each product group keeps its
-              own demand pattern, external signals, champion model, and
-              explanation.
+              Each product group keeps its own demand pattern, external
+              signals, champion model, and explanation.
             </p>
           </div>
-          <div className="target-list">
-            {CONTENT.targets.map((target, index) => (
-              <div className="target-row" key={target}>
-                <span className="target-index">0{index + 1}</span>
-                <strong>{target}</strong>
-                <span className="target-line" aria-hidden="true" />
-                <span className="target-status">Forecast target</span>
-              </div>
-            ))}
-          </div>
+          <Reveal at={1}>
+            <BasfScope />
+          </Reveal>
+          <Reveal at={2} className="story-takeaway">
+            <p>
+              The workflow stays consistent while the evidence remains specific
+              to each forecasting target.
+            </p>
+          </Reveal>
         </div>
-      </section>
+      </PresentationSlide>
 
-      <section className="story-section journey-section" id="platform-overview" aria-labelledby="journey-title">
+      <PresentationSlide
+        id="platform-overview"
+        className="story-section journey-section"
+      >
         <div className="page-shell">
-          <div className="section-kicker"><span>04</span><p>The platform</p></div>
+          <div className="section-kicker">
+            <span>04</span>
+            <p>The platform</p>
+          </div>
           <div className="section-heading split-heading">
-            <h2 id="journey-title">A connected path from raw history to operational forecasts.</h2>
+            <h2 id="journey-title">
+              A connected path from raw history to operational forecasts.
+            </h2>
+            <p>
+              Choose a workflow block to inspect how structured state moves from
+              feature discovery through operationalization.
+            </p>
+          </div>
+          <Reveal at={1}>
+            <PlatformBlocks />
+          </Reveal>
+          <Reveal at={2} className="story-takeaway">
             <p>
               Every stage exposes its assumptions and hands structured state to
-              the next. Explore the same workflow below as an interactive
-              product experience.
+              the next.
             </p>
-          </div>
-          <ol className="journey-list">
-            {journey.map(([number, title, detail]) => (
-              <li key={number}>
-                <span>{number}</span>
-                <div><strong>{title}</strong><p>{detail}</p></div>
-              </li>
-            ))}
-          </ol>
+          </Reveal>
         </div>
-      </section>
+      </PresentationSlide>
     </>
   );
 }
