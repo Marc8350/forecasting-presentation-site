@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { PresentationControls } from "../components/presentation/PresentationControls";
 import { PresentationDeck } from "../components/presentation/PresentationDeck";
 import { PresentationSlide } from "../components/presentation/PresentationSlide";
@@ -27,7 +28,17 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
 });
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe("presentation controller", () => {
+  it("renders safely when window is unavailable", () => {
+    vi.stubGlobal("window", undefined);
+
+    expect(() => renderToStaticMarkup(<TestDeck />)).not.toThrow();
+  });
+
   it("advances reveals before slides, reverses them, and protects focused controls", () => {
     render(<TestDeck />);
 
@@ -87,6 +98,18 @@ describe("presentation controller", () => {
     vi.useRealTimers();
   });
 
+  it("clears the wheel lock timer when the deck unmounts", () => {
+    vi.useFakeTimers();
+    const clearTimeoutSpy = vi.spyOn(window, "clearTimeout");
+    const { unmount } = render(<TestDeck />);
+
+    fireEvent.wheel(window, { deltaY: 45 });
+    unmount();
+
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
   it("requires a swipe threshold before navigating", () => {
     render(<TestDeck />);
 
@@ -97,6 +120,17 @@ describe("presentation controller", () => {
     fireEvent.touchStart(window, { touches: [{ clientY: 200 }] });
     fireEvent.touchEnd(window, { changedTouches: [{ clientY: 145 }] });
     expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "true");
+  });
+
+  it("clears a touch gesture when it ends on an interactive target", () => {
+    render(<TestDeck />);
+    const interactiveControl = screen.getByRole("button", { name: "Interactive test control" });
+
+    fireEvent.touchStart(window, { touches: [{ clientY: 200 }] });
+    fireEvent.touchEnd(interactiveControl, { changedTouches: [{ clientY: 120 }] });
+    fireEvent.touchEnd(window, { changedTouches: [{ clientY: 120 }] });
+
+    expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "false");
   });
 
   it("exposes accessible presentation controls", () => {

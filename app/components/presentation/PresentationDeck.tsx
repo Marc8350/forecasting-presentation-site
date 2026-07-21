@@ -57,16 +57,21 @@ type PresentationDeckProps = {
 };
 
 function prefersReducedMotion() {
+  if (typeof window === "undefined") return false;
   return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 }
 
 export function PresentationDeck({ slides, children }: PresentationDeckProps) {
   const [state, dispatch] = useReducer(
     presentationReducer,
-    createPresentationState(slides, window.location.hash),
+    createPresentationState(
+      slides,
+      typeof window === "undefined" ? "" : window.location.hash,
+    ),
   );
   const [reducedMotion, setReducedMotion] = useState(prefersReducedMotion);
   const wheelLocked = useRef(false);
+  const wheelLockTimeout = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
   const next = useCallback(() => dispatch({ type: "NEXT" }), []);
@@ -131,8 +136,9 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
       }
       wheelLocked.current = true;
       dispatch({ type: event.deltaY > 0 ? "NEXT" : "PREVIOUS" });
-      window.setTimeout(() => {
+      wheelLockTimeout.current = window.setTimeout(() => {
         wheelLocked.current = false;
+        wheelLockTimeout.current = null;
       }, 600);
     };
 
@@ -141,11 +147,14 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
     };
 
     const onTouchEnd = (event: TouchEvent) => {
+      if (touchStartY.current === null) {
+        return;
+      }
       if (
-        touchStartY.current === null ||
         isInteractiveTarget(event.target) ||
         isInteractiveTarget(document.activeElement)
       ) {
+        touchStartY.current = null;
         return;
       }
       const delta =
@@ -164,6 +173,10 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
+      if (wheelLockTimeout.current !== null) {
+        window.clearTimeout(wheelLockTimeout.current);
+        wheelLockTimeout.current = null;
+      }
     };
   }, []);
 
