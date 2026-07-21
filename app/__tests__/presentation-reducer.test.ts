@@ -36,4 +36,38 @@ describe("presentation reducer", () => {
       presentationReducer(createPresentationState(slides), { type: "PREVIOUS" }),
     ).toMatchObject({ slideIndex: 0, revealStep: 0 });
   });
+
+  it("falls back from an invalid hash and stops next navigation at the final reveal", () => {
+    expect(createPresentationState(slides, "#missing")).toMatchObject({
+      slideIndex: 0,
+      revealStep: 0,
+    });
+
+    const finalReveal = presentationReducer(
+      createPresentationState(slides),
+      { type: "END" },
+    );
+    expect(presentationReducer(finalReveal, { type: "NEXT" })).toMatchObject({
+      slideIndex: 1,
+      revealStep: 3,
+    });
+  });
+
+  it("clamps go-to slide and reveal positions", () => {
+    const state = createPresentationState(slides);
+    expect(
+      presentationReducer(state, {
+        type: "GO_TO",
+        slideIndex: 99,
+        revealStep: 99,
+      }),
+    ).toMatchObject({ slideIndex: 1, revealStep: 3 });
+    expect(
+      presentationReducer(state, {
+        type: "GO_TO",
+        slideIndex: -1,
+        revealStep: -1,
+      }),
+    ).toMatchObject({ slideIndex: 0, revealStep: 0 });
+  });
 });
