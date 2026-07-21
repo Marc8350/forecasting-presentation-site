@@ -27,15 +27,10 @@ export function StorySections() {
           </div>
           <div className="challenge-grid">
             {CONTENT.challenges.map((challenge, index) => (
-              <article className="challenge-card" key={challenge}>
+              <article className="challenge-card" key={challenge.id}>
                 <span>0{index + 1}</span>
-                <h3>{challenge}</h3>
-                <p>{[
-                  "Critical signals live across systems and owners.",
-                  "Short histories make robust evaluation difficult.",
-                  "Forecast drivers demand product and market context.",
-                  "New methods require repeated discovery and validation.",
-                ][index]}</p>
+                <h3>{challenge.title}</h3>
+                <p>{challenge.explanation}</p>
               </article>
             ))}
           </div>
