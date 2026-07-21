@@ -1,25 +1,62 @@
+"use client";
+
+import { useState } from "react";
 import { CONTENT } from "../content/site-content";
 
 export function VideoGallery() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const active = CONTENT.videos[activeIndex];
+  const move = (delta: number) => {
+    setActiveIndex((index) =>
+      Math.min(CONTENT.videos.length - 1, Math.max(0, index + delta)),
+    );
+  };
+
   return (
-    <div className="video-grid">
-      {CONTENT.videos.map((video, index) => (
-        <article className="video-card" key={video.id}>
-          <div className={`video-poster poster-${index + 1}`}>
-            <div className="poster-window" aria-hidden="true">
-              <span className="poster-rail"><i/><i/><i/><i/></span>
-              <span className="poster-canvas"><i/><i/><i/><i/><i/></span>
-            </div>
-            <span className="video-number">0{index + 1}</span>
-            <span className="video-state">Video coming soon</span>
-          </div>
-          <div className="video-body">
-            <div><span>Demo {index + 1}</span><span>{video.duration}</span></div>
-            <h3>{video.title}</h3>
-            <p>{video.description}</p>
-          </div>
-        </article>
-      ))}
+    <div className="video-carousel video-card" data-presentation-interactive="true">
+      <div className={`video-poster poster-${activeIndex + 1}`} aria-hidden="true">
+        <div className="poster-window">
+          <span className="poster-rail"><i /><i /><i /><i /></span>
+          <span className="poster-canvas"><i /><i /><i /><i /><i /></span>
+        </div>
+        <span className="video-number">0{activeIndex + 1}</span>
+        <span className="video-state">Video coming soon</span>
+      </div>
+      <div className="video-body video-carousel-copy" aria-live="polite">
+        <div>
+          <span>0{activeIndex + 1} / 0{CONTENT.videos.length}</span>
+          <span>{active.duration}</span>
+        </div>
+        <h3>{active.title}</h3>
+        <p>{active.description}</p>
+      </div>
+      <div className="video-carousel-controls">
+        <button
+          type="button"
+          aria-label="Previous demonstration"
+          disabled={activeIndex === 0}
+          onClick={() => move(-1)}
+        >
+          ←
+        </button>
+        {CONTENT.videos.map((video, index) => (
+          <button
+            key={video.id}
+            type="button"
+            aria-label={`Show demonstration ${index + 1}`}
+            aria-pressed={index === activeIndex}
+            onClick={() => setActiveIndex(index)}
+          />
+        ))}
+        <button
+          type="button"
+          aria-label="Next demonstration"
+          disabled={activeIndex === CONTENT.videos.length - 1}
+          onClick={() => move(1)}
+        >
+          →
+        </button>
+      </div>
     </div>
   );
 }
