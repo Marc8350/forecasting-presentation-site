@@ -29,6 +29,9 @@ describe("presentation site shell", () => {
       screen.getByAltText("Karlsruhe Institute of Technology (KIT)"),
     ).toBeInTheDocument();
     expect(screen.getByText(CONTENT.scopeStatement)).toBeInTheDocument();
+    expect(
+      screen.getByText("Interactive forecasting platform"),
+    ).toBeInTheDocument();
     expect(screen.getAllByTestId(/slide-/)).toHaveLength(9);
   });
 

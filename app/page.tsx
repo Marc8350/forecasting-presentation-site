@@ -37,7 +37,7 @@ export default function Page() {
         <PresentationSlide id="platform" className="product-section">
           <div className="page-shell">
             <Reveal at={1} className="product-intro">
-              <p className="eyebrow light">Interactive product showcase</p>
+              <p className="eyebrow light">Interactive forecasting platform</p>
               <h2>Explore the complete forecasting lifecycle.</h2>
               <p>
                 Every control below is functional. Walk through a deterministic
