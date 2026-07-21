@@ -27,6 +27,7 @@ a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
 button, input, select { font: inherit; }
 :focus-visible { outline: 3px solid var(--orange); outline-offset: 4px; }
+[data-reveal][data-visible="false"] { visibility: hidden; }
 .page-shell { width: min(76rem, calc(100% - 3rem)); margin-inline: auto; }
 
 .site-nav { position: fixed; inset: 0 0 auto; z-index: 100; display: flex; align-items: center; justify-content: space-between; min-height: 4.75rem; padding: .7rem max(1.5rem, calc((100vw - 76rem) / 2)); color: white; background: rgb(6 45 42 / 88%); border-bottom: 1px solid rgb(255 255 255 / 12%); backdrop-filter: blur(18px); }
