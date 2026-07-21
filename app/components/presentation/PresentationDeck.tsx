@@ -190,9 +190,12 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
     const activeId = state.slides[state.slideIndex]?.id;
     if (!activeId) return;
 
+    const shouldReduceMotion =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ??
+      reducedMotion;
     window.history.replaceState(null, "", `#${activeId}`);
     document.getElementById(activeId)?.scrollIntoView({
-      behavior: reducedMotion ? "auto" : "smooth",
+      behavior: shouldReduceMotion ? "auto" : "smooth",
       block: "start",
     });
   }, [reducedMotion, state.slideIndex, state.slides]);

@@ -175,6 +175,9 @@ describe("presentation controller", () => {
         "true",
       ),
     );
+    const scrollIntoView = vi.mocked(Element.prototype.scrollIntoView);
+    expect(scrollIntoView).toHaveBeenCalled();
+    expect(scrollIntoView.mock.calls[0]?.[0]).toMatchObject({ behavior: "auto" });
     expect(addEventListener).toHaveBeenCalledWith("change", expect.any(Function));
   });
 
