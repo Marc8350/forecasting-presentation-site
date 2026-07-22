@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import type { CSSProperties } from "react";
 import { CONTENT } from "../../content/site-content";
+import { useCycleSelection } from "../../presentation/scroll";
 
-// Clockwise order starting at the top: Research → Understand → Forecast → Explain.
 const CLOCKWISE_IDS = ["research", "understand", "forecast", "explain"] as const;
 
 export function OpportunityExplorer() {
-  const [selectedId, setSelectedId] = useState("research");
-  const selected = CONTENT.opportunityUseCases.find(
-    (item) => item.id === selectedId,
-  )!;
+  const { activeIndex, selectStop } = useCycleSelection(
+    1,
+    CONTENT.opportunityUseCases.length,
+  );
+  const selected = CONTENT.opportunityUseCases[activeIndex];
   const clockwiseUseCases = CLOCKWISE_IDS.map(
     (id) => CONTENT.opportunityUseCases.find((item) => item.id === id)!,
   );
@@ -27,11 +27,15 @@ export function OpportunityExplorer() {
           <button
             key={item.id}
             type="button"
-            aria-pressed={item.id === selectedId}
-            data-selected={item.id === selectedId}
+            aria-pressed={item.id === selected.id}
+            data-selected={item.id === selected.id}
             className={`opportunity-node opportunity-${item.id}`}
             style={{ "--node-index": index } as CSSProperties}
-            onClick={() => setSelectedId(item.id)}
+            onClick={() =>
+              selectStop(
+                CONTENT.opportunityUseCases.findIndex((c) => c.id === item.id),
+              )
+            }
           >
             {item.title}
           </button>
