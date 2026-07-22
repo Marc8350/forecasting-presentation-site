@@ -62,6 +62,9 @@ describe("presentation media", () => {
     expect(
       screen.getByRole("dialog", { name: "Cross-category feature importance heatmap" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(/LightGBM-recommended features fall into each signal family/i),
+    ).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Next evidence item" }));
     expect(

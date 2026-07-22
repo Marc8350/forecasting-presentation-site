@@ -120,74 +120,110 @@ export const CONTENT = {
     {
       src: "/assets/evidence/heatmap-family-importance.png",
       title: "Cross-category feature importance heatmap",
+      description:
+        "Counts how many LightGBM-recommended features fall into each signal family — weather, prices, lags, PPI, and more — for every product group, showing which feature types matter most where.",
     },
     {
       src: "/assets/evidence/top-features-by-group.png",
       title: "Top features by product group (LightGBM)",
+      description:
+        "Ranks the top-10 LightGBM features by composite score for Fungicides, Herbicides, and Insecticides side by side; bar length shows mean SHAP magnitude, which doesn't always track the ranking.",
     },
     {
       src: "/assets/evidence/top-features-moirai-by-group.png",
       title: "Top features by product group (Moirai)",
+      description:
+        "The same three-group top-feature comparison, computed for the Moirai foundation model instead of LightGBM.",
     },
     {
       src: "/assets/evidence/top-features-insecticides.png",
       title: "Insecticide drivers",
+      description:
+        "Top-10 LightGBM-recommended features for Insecticides, ordered by composite rank with bar length showing mean SHAP magnitude.",
     },
     {
       src: "/assets/evidence/top-features-herbicides.png",
       title: "Herbicide drivers",
+      description:
+        "Top-10 LightGBM-recommended features for Herbicides, ordered by composite rank with bar length showing mean SHAP magnitude.",
     },
     {
       src: "/assets/evidence/top-features-fungicides.png",
       title: "Fungicide drivers",
+      description:
+        "Top-10 LightGBM-recommended features for Fungicides, ordered by composite rank with bar length showing mean SHAP magnitude.",
     },
     {
       src: "/assets/evidence/top-features-seed-treatment.png",
       title: "Seed treatment drivers",
+      description:
+        "Top-10 LightGBM-recommended features for Seed Treatment, ordered by composite rank with bar length showing mean SHAP magnitude.",
     },
     {
       src: "/assets/evidence/top-features-field-crops-seeds.png",
       title: "Field crop seed drivers",
+      description:
+        "LightGBM-recommended features for Field Crops Seeds — this group recommends far fewer features than the other four, so the chart has just one bar.",
     },
     {
       src: "/assets/evidence/top-features-comparison-insecticides.png",
       title: "Insecticide driver comparison",
+      description:
+        "LightGBM (blue) versus Moirai (orange) feature rankings for Insecticides, side by side; each model keeps its own axis since their SHAP scales aren't directly comparable.",
     },
     {
       src: "/assets/evidence/top-features-comparison-herbicides.png",
       title: "Herbicide driver comparison",
+      description:
+        "LightGBM (blue) versus Moirai (orange) feature rankings for Herbicides, side by side; each model keeps its own axis since their SHAP scales aren't directly comparable.",
     },
     {
       src: "/assets/evidence/top-features-comparison-fungicides.png",
       title: "Fungicide driver comparison",
+      description:
+        "LightGBM (blue) versus Moirai (orange) feature rankings for Fungicides, side by side; each model keeps its own axis since their SHAP scales aren't directly comparable.",
     },
     {
       src: "/assets/evidence/top-features-comparison-seed-treatment.png",
       title: "Seed treatment driver comparison",
+      description:
+        "LightGBM (blue) versus Moirai (orange) feature rankings for Seed Treatment, side by side; each model keeps its own axis since their SHAP scales aren't directly comparable.",
     },
     {
       src: "/assets/evidence/top-features-comparison-field-crops-seeds.png",
       title: "Field crop seed driver comparison",
+      description:
+        "LightGBM (blue) versus Moirai (orange) feature rankings for Field Crops Seeds, the group with the fewest recommended features under both models.",
     },
     {
       src: "/assets/evidence/top-features-moirai-insecticides.png",
       title: "Insecticide drivers (Moirai)",
+      description:
+        "Top Moirai-recommended features for Insecticides, ranked the same way as the LightGBM chart for direct comparison.",
     },
     {
       src: "/assets/evidence/top-features-moirai-herbicides.png",
       title: "Herbicide drivers (Moirai)",
+      description:
+        "Top Moirai-recommended features for Herbicides, ranked the same way as the LightGBM chart for direct comparison.",
     },
     {
       src: "/assets/evidence/top-features-moirai-fungicides.png",
       title: "Fungicide drivers (Moirai)",
+      description:
+        "Top Moirai-recommended features for Fungicides, ranked the same way as the LightGBM chart for direct comparison.",
     },
     {
       src: "/assets/evidence/top-features-moirai-seed-treatment.png",
       title: "Seed treatment drivers (Moirai)",
+      description:
+        "Top Moirai-recommended features for Seed Treatment, ranked the same way as the LightGBM chart for direct comparison.",
     },
     {
       src: "/assets/evidence/top-features-moirai-field-crops-seeds.png",
       title: "Field crop seed drivers (Moirai)",
+      description:
+        "Moirai recommends only two features for Field Crops Seeds, far fewer than the roughly 15 typical for the other four groups.",
     },
   ],
 } as const;

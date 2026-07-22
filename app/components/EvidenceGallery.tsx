@@ -64,7 +64,7 @@ export function EvidenceGallery() {
           >
             <div className="dialog-top"><div><span>Technical evidence</span><h3>{active.title}</h3></div><button type="button" aria-label="Close evidence" onClick={close}>×</button></div>
             <img src={active.src} alt={`${active.title} chart from the model analysis`} />
-            <p>Illustrative feature-importance evidence from the source presentation. Higher bars indicate stronger influence in the associated LightGBM forecast.</p>
+            <p>{active.description}</p>
             <div className="evidence-dialog-controls">
               <button type="button" aria-label="Previous evidence item" onClick={() => showEvidence(activeIndex - 1)}>←</button>
               <button type="button" aria-label="Next evidence item" onClick={() => showEvidence(activeIndex + 1)}>→</button>

@@ -33,6 +33,9 @@ describe("approved English content", () => {
     ]);
     expect(CONTENT.platformBlocks).toHaveLength(3);
     expect(CONTENT.videos).toHaveLength(2);
+    expect(CONTENT.evidence.every((item) => item.description.length > 40)).toBe(
+      true,
+    );
   });
 
   it("includes every locally hosted field and evidence image", () => {
