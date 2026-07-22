@@ -116,6 +116,11 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
   const [atEnd, setAtEnd] = useState(false);
   const [jsEnhanced, setJsEnhanced] = useState(false);
 
+  // reducedMotion and reducedMotionReady must be set together in this one
+  // effect body: the hash-scroll effect below waits for reducedMotionReady
+  // before reading slide geometry, and that's only race-free because both
+  // values commit in the same render — splitting them could let
+  // reducedMotionReady turn true against a still-stale reducedMotion.
   useIsomorphicLayoutEffect(() => {
     const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     if (!mediaQuery) {
