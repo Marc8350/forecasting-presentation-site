@@ -151,11 +151,19 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
   );
 
   useEffect(() => {
+    // Progressive-enhancement flag: server/pre-hydration markup must render
+    // as if JS is absent, so this can only be known once mounted.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setJsEnhanced(true);
+  }, []);
 
+  useEffect(() => {
     const initialId = window.location.hash.replace("#", "");
     if (initialId) goTo(initialId, "auto");
 
+    // Derives state from live scroll/DOM geometry that only exists post-mount;
+    // there is no non-effect source to synchronize from.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     updateFromScroll();
 
     let frame: number | null = null;

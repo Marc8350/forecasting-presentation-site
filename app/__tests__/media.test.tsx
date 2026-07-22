@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useMotionValue } from "motion/react";
-import { createRef, type RefObject } from "react";
+import { createRef, useEffect, type RefObject } from "react";
 import { SlideProgressContext } from "../presentation/scroll";
 import { EvidenceGallery } from "../components/EvidenceGallery";
 import { VideoGallery } from "../components/VideoGallery";
@@ -11,7 +11,9 @@ type HarnessStatics = { progress: ReturnType<typeof useMotionValue>; slideRef: R
 function VideoGalleryHarness() {
   const progress = useMotionValue(2 / 3);
   const slideRef = createRef<HTMLDivElement>();
-  Object.assign(VideoGalleryHarness as unknown as HarnessStatics, { progress, slideRef });
+  useEffect(() => {
+    Object.assign(VideoGalleryHarness as unknown as HarnessStatics, { progress, slideRef });
+  }, [progress, slideRef]);
   return (
     <div ref={slideRef}>
       <SlideProgressContext.Provider

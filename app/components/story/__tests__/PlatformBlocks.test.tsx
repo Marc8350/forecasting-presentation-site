@@ -1,13 +1,15 @@
 import { act, render, screen } from "@testing-library/react";
 import { useMotionValue } from "motion/react";
-import { createRef } from "react";
+import { createRef, useEffect } from "react";
 import { SlideProgressContext } from "../../../presentation/scroll";
 import { PlatformBlocks } from "../PlatformBlocks";
 
 function Harness({ initialProgress }: { initialProgress: number }) {
   const progress = useMotionValue(initialProgress);
   const slideRef = createRef<HTMLDivElement>();
-  (Harness as unknown as { progress: typeof progress }).progress = progress;
+  useEffect(() => {
+    (Harness as unknown as { progress: typeof progress }).progress = progress;
+  }, [progress]);
   return (
     <SlideProgressContext.Provider
       value={{ slideRef, progress, revealGroupCount: 2, mode: "pinned" }}
