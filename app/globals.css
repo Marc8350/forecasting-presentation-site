@@ -247,11 +247,6 @@ button, input, select { font: inherit; }
 }
 
 /* Presentation experience */
-html {
-  scroll-snap-type: y proximity;
-  overscroll-behavior-y: none;
-}
-
 body {
   min-width: 20rem;
   overflow-x: clip;
@@ -264,19 +259,30 @@ body {
 
 [data-presentation-slide] {
   position: relative;
-  min-height: 100dvh;
   overflow-x: clip;
-  overflow-y: visible;
   scroll-margin-top: 4.75rem;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 
-[data-presentation-slide][data-active="true"] {
-  z-index: 1;
+[data-presentation-slide][data-slide-mode="flow"] {
+  min-height: 100dvh;
+  overflow-y: visible;
+}
+
+[data-presentation-slide][data-slide-mode="pinned"] {
+  overflow-y: clip;
+}
+
+.presentation-slide-surface {
+  overflow-x: clip;
 }
 
 [data-reveal] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+[data-presentation-deck][data-js-enhanced="true"] [data-reveal] {
   opacity: 0;
   visibility: hidden;
   transform: translateY(24px);
@@ -286,11 +292,26 @@ body {
     visibility 0s linear 520ms;
 }
 
-[data-reveal][data-visible="true"] {
+[data-presentation-deck][data-js-enhanced="true"] [data-reveal][data-visible="true"] {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   transition-delay: calc(var(--reveal-delay, 0) * 90ms);
+}
+
+.presentation-progress-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  transform-origin: 0% 50%;
+  background: var(--teal-600, #1f6f5c);
+}
+
+[data-presentation-controls] {
+  position: relative;
+  overflow: hidden;
 }
 
 .story-section {
@@ -868,8 +889,6 @@ body {
 #platform {
   overflow-x: clip;
   overflow-y: visible;
-  scroll-snap-align: none;
-  scroll-snap-stop: normal;
 }
 
 .product-section {
@@ -1236,11 +1255,6 @@ body {
 }
 
 @media (min-width: 47.5rem) and (max-height: 48rem) {
-  [data-presentation-slide] {
-    scroll-snap-align: none;
-    scroll-snap-stop: normal;
-  }
-
   .story-section,
   .evidence-section {
     display: block;
@@ -1265,17 +1279,16 @@ body {
 
 @media (max-width: 47.5rem) {
   html {
-    scroll-snap-type: none;
     scroll-padding-top: 4rem;
   }
 
   [data-presentation-slide] {
-    min-height: auto;
-    overflow-x: clip;
-    overflow-y: visible;
     scroll-margin-top: 4rem;
-    scroll-snap-align: none;
-    scroll-snap-stop: normal;
+  }
+
+  [data-presentation-slide][data-slide-mode="flow"] {
+    min-height: auto;
+    overflow-y: visible;
   }
 
   .page-shell {
