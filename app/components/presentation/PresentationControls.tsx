@@ -1,17 +1,18 @@
 "use client";
 
+import { motion, useScroll } from "motion/react";
 import { usePresentation } from "./PresentationDeck";
 
 export function PresentationControls() {
-  const { state, next, previous } = usePresentation();
-  const currentSlide = state.slides[state.slideIndex];
-  const atStart = state.slideIndex === 0;
-  const atEnd =
-    state.slideIndex === state.slides.length - 1 &&
-    state.revealStep === currentSlide?.revealCount;
+  const { currentSlideIndex, totalSlides, atStart, atEnd, next, previous } = usePresentation();
+  const { scrollYProgress } = useScroll();
 
   return (
     <div data-presentation-controls>
+      <motion.div
+        className="presentation-progress-line"
+        style={{ scaleX: scrollYProgress }}
+      />
       <button
         type="button"
         aria-label="Previous presentation step"
@@ -21,7 +22,7 @@ export function PresentationControls() {
         ←
       </button>
       <output aria-live="polite">
-        {state.slideIndex + 1} / {state.slides.length}
+        {totalSlides > 0 ? currentSlideIndex + 1 : 1} / {totalSlides || 1}
       </output>
       <button
         type="button"
