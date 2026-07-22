@@ -466,11 +466,11 @@ body {
   border-radius: 2rem 2rem 2rem .45rem;
 }
 
-#opening[data-active="true"] .hero-glow-one {
+#opening .hero-glow-one {
   animation: presentation-drift 9s ease-in-out infinite alternate;
 }
 
-#opening[data-active="true"] .hero-glow-two {
+#opening .hero-glow-two {
   animation: presentation-drift 12s ease-in-out -3s infinite alternate-reverse;
 }
 
