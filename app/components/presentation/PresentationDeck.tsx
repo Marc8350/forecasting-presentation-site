@@ -5,10 +5,14 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 type PresentationContextValue = {
   reducedMotion: boolean;
@@ -105,18 +109,23 @@ type PresentationDeckProps = { children: ReactNode };
 
 export function PresentationDeck({ children }: PresentationDeckProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [reducedMotionReady, setReducedMotionReady] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const [jsEnhanced, setJsEnhanced] = useState(false);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    if (!mediaQuery) return;
+    if (!mediaQuery) {
+      setReducedMotionReady(true);
+      return;
+    }
 
     const updateReducedMotion = () => setReducedMotion(mediaQuery.matches);
     updateReducedMotion();
+    setReducedMotionReady(true);
     mediaQuery.addEventListener("change", updateReducedMotion);
     return () => mediaQuery.removeEventListener("change", updateReducedMotion);
   }, []);
@@ -150,14 +159,16 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
     [reducedMotion],
   );
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     // Progressive-enhancement flag: server/pre-hydration markup must render
-    // as if JS is absent, so this can only be known once mounted.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // as if JS is absent, so this can only be known once mounted. Runs as a
+    // layout effect (before paint) to avoid a flash of hidden content.
     setJsEnhanced(true);
   }, []);
 
   useEffect(() => {
+    if (!reducedMotionReady) return;
+
     const initialId = window.location.hash.replace("#", "");
     if (initialId) goTo(initialId, "auto");
 
@@ -182,10 +193,11 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
       window.removeEventListener("resize", onScroll);
       if (frame !== null) window.cancelAnimationFrame(frame);
     };
-    // Intentionally runs once on mount; goTo/updateFromScroll close over
-    // reducedMotion via refs-free reads of live DOM/window state.
+    // Re-runs once, when reducedMotionReady flips true (after the reduced-motion
+    // re-render has committed correct pinned/flow layout); goTo/updateFromScroll
+    // close over reducedMotion via live DOM/window reads, not stale closures.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reducedMotionReady]);
 
   const next = useCallback(() => {
     const target = nextStopTarget(allStopTargets(), window.scrollY);

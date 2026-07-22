@@ -19,7 +19,6 @@ export function Reveal({ at, children, className, "data-testid": testId }: Revea
       data-testid={testId}
       data-reveal
       data-visible={String(revealed)}
-      aria-hidden={!revealed}
     >
       {children}
     </div>
