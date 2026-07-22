@@ -78,11 +78,11 @@ describe("story explorers", () => {
     const user = userEvent.setup();
     render(<OpportunityExplorerWithContext />);
 
-    // Content order is understand, research, forecast, explain — "Understand"
-    // is the first use case, selected by default at the start of its band.
-    const liveExplanation = screen.getByText(/advising data scientist/i);
+    // Clockwise display order is research, understand, forecast, explain —
+    // "Research" is the first use case, selected by default at the start of its band.
+    const liveExplanation = screen.getByText(/discover relevant signals/i);
     expect(liveExplanation).toHaveAttribute("aria-live", "polite");
-    expect(screen.getByRole("button", { name: "Understand" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Research" })).toHaveAttribute("aria-pressed", "true");
 
     const progress = (OpportunityExplorerWithContext as unknown as HarnessStatics).progress;
     vi.spyOn(window, "scrollTo").mockImplementation(() => {
@@ -93,7 +93,7 @@ describe("story explorers", () => {
 
     expect(screen.getByText(/technical and business stakeholders/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Explain" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Understand" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Research" })).toHaveAttribute("aria-pressed", "false");
   });
 });
 

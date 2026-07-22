@@ -11,10 +11,10 @@ export function OpportunityExplorer() {
     1,
     CONTENT.opportunityUseCases.length,
   );
-  const selected = CONTENT.opportunityUseCases[activeIndex];
   const clockwiseUseCases = CLOCKWISE_IDS.map(
     (id) => CONTENT.opportunityUseCases.find((item) => item.id === id)!,
   );
+  const selected = clockwiseUseCases[activeIndex];
 
   return (
     <div className="opportunity-explorer" data-presentation-interactive="true">
@@ -31,11 +31,7 @@ export function OpportunityExplorer() {
             data-selected={item.id === selected.id}
             className={`opportunity-node opportunity-${item.id}`}
             style={{ "--node-index": index } as CSSProperties}
-            onClick={() =>
-              selectStop(
-                CONTENT.opportunityUseCases.findIndex((c) => c.id === item.id),
-              )
-            }
+            onClick={() => selectStop(index)}
           >
             {item.title}
           </button>

@@ -28,8 +28,8 @@ export function PresentationSlide({
   className,
   children,
 }: PresentationSlideProps) {
-  const { reducedMotion } = usePresentation();
-  const pinned = mode === "pinned" && !reducedMotion;
+  const { reducedMotion, narrowViewport } = usePresentation();
+  const pinned = mode === "pinned" && !reducedMotion && !narrowViewport;
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const stopFractions = useMemo(
@@ -62,7 +62,6 @@ export function PresentationSlide({
       data-presentation-slide
       data-slide-mode={pinned ? "pinned" : "flow"}
       data-stop-fractions={pinned ? stopFractions.join(",") : ""}
-      className={className}
       style={
         pinned
           ? { height: `${(stopFractions.length + 1) * PIN_VH_PER_STOP}vh` }
@@ -70,7 +69,9 @@ export function PresentationSlide({
       }
     >
       <div
-        className="presentation-slide-surface"
+        className={
+          className ? `presentation-slide-surface ${className}` : "presentation-slide-surface"
+        }
         style={
           pinned
             ? { position: "sticky", top: 0, height: "100vh", overflow: "hidden" }

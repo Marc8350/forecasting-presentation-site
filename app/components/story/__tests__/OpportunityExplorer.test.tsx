@@ -20,10 +20,10 @@ function Harness({ initialProgress }: { initialProgress: number }) {
 }
 
 describe("OpportunityExplorer", () => {
-  it("marks the content-array's first use case selected at the band start", () => {
+  it("marks the first clockwise use case selected at the band start", () => {
     render(<Harness initialProgress={1 / 3} />);
-    // Content order is understand, research, forecast, explain — index 0 is "Understand".
-    expect(screen.getByRole("button", { name: "Understand" })).toHaveAttribute(
+    // Clockwise display order is research, understand, forecast, explain — index 0 is "Research".
+    expect(screen.getByRole("button", { name: "Research" })).toHaveAttribute(
       "aria-pressed",
       "true",
     );

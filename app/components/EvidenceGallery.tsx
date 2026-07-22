@@ -8,6 +8,7 @@ export function EvidenceGallery() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const launchButton = useRef<HTMLButtonElement | null>(null);
   const thumbRail = useRef<HTMLDivElement | null>(null);
+  const mountedRef = useRef(false);
   const active = CONTENT.evidence[activeIndex];
   const count = CONTENT.evidence.length;
 
@@ -23,6 +24,13 @@ export function EvidenceGallery() {
   };
 
   useEffect(() => {
+    // Skip on mount: this slide renders off-screen from page load in the
+    // scroll-scrubbed layout, so scrolling the active thumb into view here
+    // would drag the whole window down before the user ever navigates.
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
     const activeThumb = thumbRail.current?.querySelector("[aria-pressed='true']");
     activeThumb?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
   }, [activeIndex]);

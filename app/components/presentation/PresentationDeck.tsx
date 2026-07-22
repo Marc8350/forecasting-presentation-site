@@ -16,6 +16,7 @@ const useIsomorphicLayoutEffect =
 
 type PresentationContextValue = {
   reducedMotion: boolean;
+  narrowViewport: boolean;
   currentSlideIndex: number;
   totalSlides: number;
   atStart: boolean;
@@ -109,30 +110,38 @@ type PresentationDeckProps = { children: ReactNode };
 
 export function PresentationDeck({ children }: PresentationDeckProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [reducedMotionReady, setReducedMotionReady] = useState(false);
+  const [narrowViewport, setNarrowViewport] = useState(false);
+  const [layoutQueryReady, setLayoutQueryReady] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const [jsEnhanced, setJsEnhanced] = useState(false);
 
-  // reducedMotion and reducedMotionReady must be set together in this one
-  // effect body: the hash-scroll effect below waits for reducedMotionReady
-  // before reading slide geometry, and that's only race-free because both
-  // values commit in the same render — splitting them could let
-  // reducedMotionReady turn true against a still-stale reducedMotion.
+  // reducedMotion, narrowViewport, and layoutQueryReady must be set together
+  // in this one effect body: the hash-scroll effect below waits for
+  // layoutQueryReady before reading slide geometry, and that's only
+  // race-free because all three values commit in the same render —
+  // splitting them could let layoutQueryReady turn true against a still-stale
+  // reducedMotion/narrowViewport (both of which flip PresentationSlide
+  // between pinned and flow layout, changing slide heights).
   useIsomorphicLayoutEffect(() => {
-    const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    if (!mediaQuery) {
-      setReducedMotionReady(true);
-      return;
-    }
+    const motionQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const viewportQuery = window.matchMedia?.("(max-width: 47.5rem)");
 
-    const updateReducedMotion = () => setReducedMotion(mediaQuery.matches);
+    const updateReducedMotion = () => setReducedMotion(Boolean(motionQuery?.matches));
+    const updateNarrowViewport = () => setNarrowViewport(Boolean(viewportQuery?.matches));
+
     updateReducedMotion();
-    setReducedMotionReady(true);
-    mediaQuery.addEventListener("change", updateReducedMotion);
-    return () => mediaQuery.removeEventListener("change", updateReducedMotion);
+    updateNarrowViewport();
+    setLayoutQueryReady(true);
+
+    motionQuery?.addEventListener("change", updateReducedMotion);
+    viewportQuery?.addEventListener("change", updateNarrowViewport);
+    return () => {
+      motionQuery?.removeEventListener("change", updateReducedMotion);
+      viewportQuery?.removeEventListener("change", updateNarrowViewport);
+    };
   }, []);
 
   const updateFromScroll = useCallback(() => {
@@ -172,7 +181,7 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
   }, []);
 
   useEffect(() => {
-    if (!reducedMotionReady) return;
+    if (!layoutQueryReady) return;
 
     const initialId = window.location.hash.replace("#", "");
     if (initialId) goTo(initialId, "auto");
@@ -198,11 +207,12 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
       window.removeEventListener("resize", onScroll);
       if (frame !== null) window.cancelAnimationFrame(frame);
     };
-    // Re-runs once, when reducedMotionReady flips true (after the reduced-motion
-    // re-render has committed correct pinned/flow layout); goTo/updateFromScroll
-    // close over reducedMotion via live DOM/window reads, not stale closures.
+    // Re-runs once, when layoutQueryReady flips true (after the reduced-motion/
+    // narrow-viewport re-render has committed correct pinned/flow layout);
+    // goTo/updateFromScroll close over reducedMotion via live DOM/window
+    // reads, not stale closures.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reducedMotionReady]);
+  }, [layoutQueryReady]);
 
   const next = useCallback(() => {
     const target = nextStopTarget(allStopTargets(), window.scrollY);
@@ -259,6 +269,7 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
   const contextValue = useMemo(
     () => ({
       reducedMotion,
+      narrowViewport,
       currentSlideIndex,
       totalSlides,
       atStart,
@@ -267,7 +278,17 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
       previous,
       goTo,
     }),
-    [reducedMotion, currentSlideIndex, totalSlides, atStart, atEnd, next, previous, goTo],
+    [
+      reducedMotion,
+      narrowViewport,
+      currentSlideIndex,
+      totalSlides,
+      atStart,
+      atEnd,
+      next,
+      previous,
+      goTo,
+    ],
   );
 
   return (
