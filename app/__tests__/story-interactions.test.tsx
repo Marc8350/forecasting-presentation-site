@@ -24,6 +24,36 @@ function ChallengeExplorerWithContext() {
   );
 }
 
+function OpportunityExplorerWithContext() {
+  const progress = useMotionValue(1 / 3);
+  const slideRef = createRef<HTMLDivElement>();
+  Object.assign(OpportunityExplorerWithContext as unknown as HarnessStatics, { progress });
+  return (
+    <div ref={slideRef}>
+      <SlideProgressContext.Provider
+        value={{ slideRef, progress, revealGroupCount: 2, mode: "pinned" }}
+      >
+        <OpportunityExplorer />
+      </SlideProgressContext.Provider>
+    </div>
+  );
+}
+
+function PlatformBlocksWithContext() {
+  const progress = useMotionValue(1 / 3);
+  const slideRef = createRef<HTMLDivElement>();
+  Object.assign(PlatformBlocksWithContext as unknown as HarnessStatics, { progress });
+  return (
+    <div ref={slideRef}>
+      <SlideProgressContext.Provider
+        value={{ slideRef, progress, revealGroupCount: 2, mode: "pinned" }}
+      >
+        <PlatformBlocks />
+      </SlideProgressContext.Provider>
+    </div>
+  );
+}
+
 describe("story explorers", () => {
   it("explains a selected forecasting challenge", async () => {
     const user = userEvent.setup();
@@ -46,23 +76,30 @@ describe("story explorers", () => {
 
   it("explains a selected holistic AI use case", async () => {
     const user = userEvent.setup();
-    render(<OpportunityExplorer />);
+    render(<OpportunityExplorerWithContext />);
 
-    const liveExplanation = screen.getByText(/discover relevant signals/i);
+    // Content order is understand, research, forecast, explain — "Understand"
+    // is the first use case, selected by default at the start of its band.
+    const liveExplanation = screen.getByText(/advising data scientist/i);
     expect(liveExplanation).toHaveAttribute("aria-live", "polite");
-    expect(screen.getByRole("button", { name: "Research" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Understand" })).toHaveAttribute("aria-pressed", "true");
+
+    const progress = (OpportunityExplorerWithContext as unknown as HarnessStatics).progress;
+    vi.spyOn(window, "scrollTo").mockImplementation(() => {
+      act(() => progress.set(2 / 3 - 0.001));
+    });
 
     await user.click(screen.getByRole("button", { name: "Explain" }));
 
     expect(screen.getByText(/technical and business stakeholders/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Explain" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Research" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Understand" })).toHaveAttribute("aria-pressed", "false");
   });
 });
 
 describe("story platform", () => {
   it("defaults to the feature-building platform block", () => {
-    render(<PlatformBlocks />);
+    render(<PlatformBlocksWithContext />);
 
     expect(
       screen.getByText("Explore useful internal and external data sources."),
@@ -74,7 +111,12 @@ describe("story platform", () => {
 
   it("reveals the selected platform block in its ordered workflow", async () => {
     const user = userEvent.setup();
-    render(<PlatformBlocks />);
+    render(<PlatformBlocksWithContext />);
+
+    const progress = (PlatformBlocksWithContext as unknown as HarnessStatics).progress;
+    vi.spyOn(window, "scrollTo").mockImplementation(() => {
+      act(() => progress.set(0.5));
+    });
 
     await user.click(screen.getByRole("button", { name: "Model and evaluate" }));
 
