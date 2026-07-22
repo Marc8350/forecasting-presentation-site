@@ -40,7 +40,9 @@ Home moves to the first stop of the first slide. End moves to the last stop of t
 
 ### Interactive display components
 
-`ChallengeExplorer`, `OpportunityExplorer`, `PlatformBlocks`, `VideoGallery`, and `EvidenceGallery` stop owning `useState` for their active index. Instead they receive their active index from a small shared hook (e.g. `useBandIndex(progress, itemCount, [start, end])`) fed by the parent slide's progress. Clicking an item still visually feels like a selection, but is implemented as scrolling to that item's stop (per above). `EvidenceGallery`'s zoom modal, and its own internal prev/next arrows *within* the opened modal, remain pure click/keyboard-driven and are not coupled to page scroll — it is a secondary overlay, not part of the primary scroll narrative.
+`ChallengeExplorer`, `OpportunityExplorer`, `PlatformBlocks`, and `VideoGallery` stop owning `useState` for their active index. Instead they receive their active index from a small shared hook (e.g. `useBandIndex(progress, itemCount, [start, end])`) fed by the parent slide's progress. Clicking an item still visually feels like a selection, but is implemented as scrolling to that item's stop (per above).
+
+`EvidenceGallery` is the one exception: with 16 backup images (versus 2-4 items in the other cycling components), scroll-driving its main image selection would mean pinning the evidence slide for roughly sixteen viewport-heights just for backup technical material. Its main stage selection, thumbnail rail, zoom modal, and the modal's internal prev/next arrows all remain exactly as they are today — pure click/keyboard-driven, retaining local `useState`. Only the evidence slide's entrance (heading and gallery container) gets a scroll-scrubbed fade-in, the same treatment as the "platform" slide.
 
 ### `ForecastShowcase` slide ("platform")
 
