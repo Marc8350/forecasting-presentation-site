@@ -1,15 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { CONTENT } from "../content/site-content";
+import { useCycleSelection } from "../presentation/scroll";
 
 export function VideoGallery() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const { activeIndex, selectStop } = useCycleSelection(2, CONTENT.videos.length);
   const active = CONTENT.videos[activeIndex];
   const move = (delta: number) => {
-    setActiveIndex((index) =>
-      Math.min(CONTENT.videos.length - 1, Math.max(0, index + delta)),
-    );
+    selectStop(Math.min(CONTENT.videos.length - 1, Math.max(0, activeIndex + delta)));
   };
 
   return (
@@ -46,7 +44,7 @@ export function VideoGallery() {
             type="button"
             aria-label={`Show demonstration ${index + 1}`}
             aria-pressed={index === activeIndex}
-            onClick={() => setActiveIndex(index)}
+            onClick={() => selectStop(index)}
           />
         ))}
         <button

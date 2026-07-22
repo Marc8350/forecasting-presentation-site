@@ -1,11 +1,31 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useMotionValue } from "motion/react";
+import { createRef, type RefObject } from "react";
+import { SlideProgressContext } from "../presentation/scroll";
 import { EvidenceGallery } from "../components/EvidenceGallery";
 import { VideoGallery } from "../components/VideoGallery";
 
+type HarnessStatics = { progress: ReturnType<typeof useMotionValue>; slideRef: RefObject<HTMLDivElement | null> };
+
+function VideoGalleryHarness() {
+  const progress = useMotionValue(2 / 3);
+  const slideRef = createRef<HTMLDivElement>();
+  Object.assign(VideoGalleryHarness as unknown as HarnessStatics, { progress, slideRef });
+  return (
+    <div ref={slideRef}>
+      <SlideProgressContext.Provider
+        value={{ slideRef, progress, revealGroupCount: 2, mode: "flow" }}
+      >
+        <VideoGallery />
+      </SlideProgressContext.Provider>
+    </div>
+  );
+}
+
 describe("presentation media", () => {
   it("embeds the first demonstration video with bounded controls", () => {
-    const { container } = render(<VideoGallery />);
+    const { container } = render(<VideoGalleryHarness />);
 
     expect(
       screen.getByText("Exploring the features already in the system"),
@@ -28,7 +48,7 @@ describe("presentation media", () => {
 
   it("clicks through the demonstration videos without leaving their bounds", async () => {
     const user = userEvent.setup();
-    const { container } = render(<VideoGallery />);
+    const { container } = render(<VideoGalleryHarness />);
 
     await user.click(screen.getByRole("button", { name: "Next demonstration" }));
     expect(
