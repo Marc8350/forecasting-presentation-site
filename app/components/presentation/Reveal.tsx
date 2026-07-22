@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { useCurrentPresentationSlide } from "./PresentationDeck";
+import type { ReactNode } from "react";
+import { useRevealed } from "../../presentation/scroll";
 
 type RevealProps = {
   at: number;
@@ -11,21 +11,15 @@ type RevealProps = {
 };
 
 export function Reveal({ at, children, className, "data-testid": testId }: RevealProps) {
-  const { revealStep } = useCurrentPresentationSlide();
-  const visible = revealStep >= at;
-  // Once revealed, content stays visible — scrolling back never hides it.
-  const [seen, setSeen] = useState(visible);
-  if (visible && !seen) setSeen(true);
-
-  const shown = visible || seen;
+  const revealed = useRevealed(at);
 
   return (
     <div
       className={className}
       data-testid={testId}
       data-reveal
-      data-visible={String(shown)}
-      aria-hidden={!shown}
+      data-visible={String(revealed)}
+      aria-hidden={!revealed}
     >
       {children}
     </div>
