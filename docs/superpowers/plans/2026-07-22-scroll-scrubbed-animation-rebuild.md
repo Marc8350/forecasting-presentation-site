@@ -6,7 +6,7 @@
 
 **Architecture:** Each slide is a tall wrapper with a `position: sticky` inner surface. `motion/react`'s `useScroll` produces a `scrollYProgress` (0→1) motion value per slide, which drives `Reveal` visibility and which-item-is-active for cycling display components (challenge cards, AI use-case nodes, platform blocks, video states) via shared pure-math helpers. Scroll position is the single source of truth: clicking an item scrolls to its computed position; keyboard/button Next/Previous step through every slide's stop positions one at a time (flattened in document order, so a presenter never skips past unrevealed cards). The `reducer.ts`/`types.ts` state machine and all wheel/touch-gesture interception are deleted.
 
-**Tech Stack:** Next.js 16 / React 19, `motion` (Framer Motion) for `useScroll`/`useInView`/`useMotionValueEvent`/`useReducedMotion`, Vitest + Testing Library, Tailwind-adjacent hand-written CSS in `app/globals.css`.
+**Tech Stack:** Next.js 16 / React 19, `motion` (Framer Motion) for `useScroll`/`useInView`/`useMotionValueEvent`, a manual `matchMedia`-based reduced-motion check (not `motion`'s `useReducedMotion`, which caches module-level singletons in a way that fights repeated jsdom test runs), Vitest + Testing Library, Tailwind-adjacent hand-written CSS in `app/globals.css`.
 
 ## Global Constraints
 
@@ -474,7 +474,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useReducedMotion } from "motion/react";
 
 type PresentationContextValue = {
   reducedMotion: boolean;
@@ -537,23 +536,24 @@ function allStopTargets(): number[] {
   return slideElements().flatMap(slideStopTargets);
 }
 
-function closestIndex(targets: number[], y: number): number {
-  let closest = 0;
-  let closestDistance = Infinity;
-  targets.forEach((target, index) => {
-    const distance = Math.abs(target - y);
-    if (distance < closestDistance) {
-      closestDistance = distance;
-      closest = index;
-    }
-  });
-  return closest;
+function nextStopTarget(targets: number[], y: number): number | null {
+  const upcoming = targets.filter((target) => target > y);
+  return upcoming.length > 0 ? Math.min(...upcoming) : null;
+}
+
+function previousStopTarget(targets: number[], y: number): number | null {
+  const passed = targets.filter((target) => target < y);
+  return passed.length > 0 ? Math.max(...passed) : null;
+}
+
+function scrollToTarget(target: number, smooth: boolean) {
+  window.scrollTo({ top: target, behavior: smooth ? "smooth" : "auto" });
 }
 
 function scrollToIndex(targets: number[], index: number, smooth: boolean) {
   if (targets.length === 0) return;
   const clamped = Math.min(targets.length - 1, Math.max(0, index));
-  window.scrollTo({ top: targets[clamped], behavior: smooth ? "smooth" : "auto" });
+  scrollToTarget(targets[clamped], smooth);
 }
 
 function currentSlideIndexFor(elements: HTMLElement[]): number {
@@ -569,12 +569,22 @@ function currentSlideIndexFor(elements: HTMLElement[]): number {
 type PresentationDeckProps = { children: ReactNode };
 
 export function PresentationDeck({ children }: PresentationDeckProps) {
-  const reducedMotion = Boolean(useReducedMotion());
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const [jsEnhanced, setJsEnhanced] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    if (!mediaQuery) return;
+
+    const updateReducedMotion = () => setReducedMotion(mediaQuery.matches);
+    updateReducedMotion();
+    mediaQuery.addEventListener("change", updateReducedMotion);
+    return () => mediaQuery.removeEventListener("change", updateReducedMotion);
+  }, []);
 
   const updateFromScroll = useCallback(() => {
     const elements = slideElements();
@@ -583,9 +593,8 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
     setCurrentSlideIndex(slideIndex);
 
     const targets = allStopTargets();
-    const stopIndex = closestIndex(targets, window.scrollY);
-    setAtStart(stopIndex <= 0);
-    setAtEnd(stopIndex >= targets.length - 1);
+    setAtStart(previousStopTarget(targets, window.scrollY) === null);
+    setAtEnd(nextStopTarget(targets, window.scrollY) === null);
 
     const activeId = elements[slideIndex]?.id;
     if (activeId && window.location.hash !== `#${activeId}`) {
@@ -636,15 +645,13 @@ export function PresentationDeck({ children }: PresentationDeckProps) {
   }, []);
 
   const next = useCallback(() => {
-    const targets = allStopTargets();
-    const current = closestIndex(targets, window.scrollY);
-    scrollToIndex(targets, current + 1, !reducedMotion);
+    const target = nextStopTarget(allStopTargets(), window.scrollY);
+    if (target !== null) scrollToTarget(target, !reducedMotion);
   }, [reducedMotion]);
 
   const previous = useCallback(() => {
-    const targets = allStopTargets();
-    const current = closestIndex(targets, window.scrollY);
-    scrollToIndex(targets, current - 1, !reducedMotion);
+    const target = previousStopTarget(allStopTargets(), window.scrollY);
+    if (target !== null) scrollToTarget(target, !reducedMotion);
   }, [reducedMotion]);
 
   useEffect(() => {
@@ -727,18 +734,25 @@ import {
   usePresentation,
 } from "../components/presentation/PresentationDeck";
 
-function stubSlide(id: string, top: number, height: number, stopFractions?: string) {
+function stubSlide(id: string, absoluteTop: number, height: number, stopFractions?: string) {
   const el = document.getElementById(id) as HTMLDivElement;
-  vi.spyOn(el, "getBoundingClientRect").mockReturnValue({
-    top,
-    bottom: top + height,
-    left: 0,
-    right: 0,
-    width: 0,
-    height,
-    x: 0,
-    y: top,
-    toJSON: () => {},
+  // A real element's getBoundingClientRect().top falls as window.scrollY
+  // rises, keeping window.scrollY + rect.top (the element's page-absolute
+  // top) constant. slideStopTargets recomputes that sum on every call, so
+  // the mock must preserve this invariant rather than returning a fixed top.
+  vi.spyOn(el, "getBoundingClientRect").mockImplementation(() => {
+    const top = absoluteTop - window.scrollY;
+    return {
+      top,
+      bottom: top + height,
+      left: 0,
+      right: 0,
+      width: 0,
+      height,
+      x: 0,
+      y: top,
+      toJSON: () => {},
+    };
   });
   Object.defineProperty(el, "offsetHeight", { value: height, configurable: true });
   if (stopFractions !== undefined) el.dataset.stopFractions = stopFractions;
@@ -766,10 +780,6 @@ function TestDeck() {
 
 beforeEach(() => {
   window.history.replaceState(null, "", "/");
-  vi.stubGlobal(
-    "innerHeight",
-    Object.getOwnPropertyDescriptor(window, "innerHeight")?.value ?? 800,
-  );
   Object.defineProperty(window, "innerHeight", { value: 800, configurable: true });
   window.scrollTo = vi.fn((options) => {
     if (typeof options === "object" && options && "top" in options) {
@@ -796,35 +806,33 @@ describe("PresentationDeck", () => {
 
   it("advances one stop at a time within a slide before crossing to the next", () => {
     render(<TestDeck />);
+    // scrollable = offsetHeight - innerHeight = 2400 - 800 = 1600 for "opening",
+    // so its 4 stop fractions land at 400, 800, 1200, 1600.
     stubSlide("opening", 0, 2400, "0.25,0.5,0.75,1");
-    stubSlide("challenge", 2400, 800, "0.5");
+    // scrollable = 1600 - 800 = 800 for "challenge", so its single stop
+    // (fraction 0.5) lands at 2400 + 0.5 * 800 = 2800.
+    stubSlide("challenge", 2400, 1600, "0.5");
 
     act(() => fireEvent.keyDown(window, { key: "ArrowRight" }));
-    expect(window.scrollTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({ top: 2400 * 0.25 }),
-    );
+    expect(window.scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 400 }));
 
     act(() => fireEvent.keyDown(window, { key: "ArrowRight" }));
-    expect(window.scrollTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({ top: 2400 * 0.5 }),
-    );
+    expect(window.scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 800 }));
 
     act(() => fireEvent.keyDown(window, { key: "ArrowRight" }));
     act(() => fireEvent.keyDown(window, { key: "ArrowRight" }));
-    // Now at the last stop of "opening" (fraction 1 => top 2400).
-    expect(window.scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 2400 }));
+    // Now at the last stop of "opening" (fraction 1 => top 1600).
+    expect(window.scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 1600 }));
 
     act(() => fireEvent.keyDown(window, { key: "ArrowRight" }));
     // Crosses into "challenge"'s single stop.
-    expect(window.scrollTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({ top: 2400 + 800 * 0.5 }),
-    );
+    expect(window.scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 2800 }));
   });
 
   it("ignores navigation keys while an interactive control is focused", () => {
     render(<TestDeck />);
     stubSlide("opening", 0, 2400, "0.5");
-    stubSlide("challenge", 2400, 800, "0.5");
+    stubSlide("challenge", 2400, 1600, "0.5");
     const control = screen.getByRole("button", { name: "Interactive control" });
     control.focus();
 
@@ -834,18 +842,16 @@ describe("PresentationDeck", () => {
 
   it("supports Home and End", () => {
     render(<TestDeck />);
+    // scrollable = 2400 - 800 = 1600; fractions 0.25, 0.75 => 400, 1200.
     stubSlide("opening", 0, 2400, "0.25,0.75");
-    stubSlide("challenge", 2400, 800, "0.5");
+    // scrollable = 1600 - 800 = 800; fraction 0.5 => 2400 + 400 = 2800.
+    stubSlide("challenge", 2400, 1600, "0.5");
 
     act(() => fireEvent.keyDown(window, { key: "End" }));
-    expect(window.scrollTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({ top: 2400 + 800 * 0.5 }),
-    );
+    expect(window.scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 2800 }));
 
     act(() => fireEvent.keyDown(window, { key: "Home" }));
-    expect(window.scrollTo).toHaveBeenLastCalledWith(
-      expect.objectContaining({ top: 2400 * 0.25 }),
-    );
+    expect(window.scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 400 }));
   });
 
   it("exposes reduced-motion state and uses instant scrolling", () => {
@@ -860,7 +866,7 @@ describe("PresentationDeck", () => {
     );
     render(<TestDeck />);
     stubSlide("opening", 0, 2400, "0.5");
-    stubSlide("challenge", 2400, 800, "0.5");
+    stubSlide("challenge", 2400, 1600, "0.5");
 
     expect(document.querySelector("[data-presentation-deck]")).toHaveAttribute(
       "data-reduced-motion",
