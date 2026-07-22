@@ -1,16 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import type { CSSProperties } from "react";
 import { CONTENT } from "../../content/site-content";
+import { useCycleSelection } from "../../presentation/scroll";
 
 export function PlatformBlocks() {
-  const [selectedId, setSelectedId] = useState(
-    CONTENT.platformBlocks[0].id,
-  );
-  const selected =
-    CONTENT.platformBlocks.find((item) => item.id === selectedId) ??
-    CONTENT.platformBlocks[0];
+  const { activeIndex, selectStop } = useCycleSelection(1, CONTENT.platformBlocks.length);
+  const selected = CONTENT.platformBlocks[activeIndex];
 
   return (
     <div className="platform-blocks" data-presentation-interactive="true">
@@ -20,8 +16,8 @@ export function PlatformBlocks() {
             key={block.id}
             type="button"
             aria-label={block.title}
-            aria-pressed={block.id === selectedId}
-            onClick={() => setSelectedId(block.id)}
+            aria-pressed={index === activeIndex}
+            onClick={() => selectStop(index)}
           >
             <span>0{index + 1}</span>
             {block.title}
