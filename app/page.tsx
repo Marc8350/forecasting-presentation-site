@@ -15,7 +15,7 @@ const SLIDES = [
   { id: "challenge", revealCount: 2 },
   { id: "opportunity", revealCount: 2 },
   { id: "platform-overview", revealCount: 2 },
-  { id: "platform", revealCount: 1 },
+  { id: "platform", revealCount: 0 },
   { id: "videos", revealCount: 2 },
   { id: "evidence", revealCount: 1 },
   { id: "closing", revealCount: 2 },
@@ -35,14 +35,14 @@ export default function Page() {
 
         <PresentationSlide id="platform" className="product-section">
           <div className="page-shell">
-            <Reveal at={1} className="product-intro">
+            <div className="product-intro">
               <p className="eyebrow light">Interactive forecasting platform</p>
               <h2>Explore the complete forecasting lifecycle.</h2>
               <p>
                 Every control below is functional. Walk through a deterministic
                 simulation from sample data to an operational champion model.
               </p>
-            </Reveal>
+            </div>
             <div
               data-testid="forecasting-showcase-wrapper"
               data-presentation-interactive="true"
