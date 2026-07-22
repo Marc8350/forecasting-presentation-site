@@ -2,33 +2,26 @@
 
 import {
   createContext,
-  type ReactNode,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  useReducer,
-  useRef,
   useState,
+  type ReactNode,
 } from "react";
-import { createPresentationState, presentationReducer } from "../../presentation/reducer";
-import type { PresentationState, SlideDefinition } from "../../presentation/types";
 
 type PresentationContextValue = {
-  state: PresentationState;
+  reducedMotion: boolean;
+  currentSlideIndex: number;
+  totalSlides: number;
+  atStart: boolean;
+  atEnd: boolean;
   next: () => void;
   previous: () => void;
-  goTo: (slideIndex: number, revealStep?: number) => void;
-  reducedMotion: boolean;
+  goTo: (slideId: string) => void;
 };
 
 const PresentationContext = createContext<PresentationContextValue | null>(null);
-export const PresentationSlideContext = createContext({ revealStep: 0 });
-
-const wheelStepThreshold = 45;
-// After each dispatched step, wheel input is ignored for a fixed cooldown so
-// trackpad momentum cannot lock the deck or skip multiple steps at once.
-const wheelStepCooldownMs = 650;
 
 const interactiveSelector = [
   "a",
@@ -52,47 +45,149 @@ export function usePresentation() {
   return value;
 }
 
-export function useCurrentPresentationSlide() {
-  return useContext(PresentationSlideContext);
+function slideElements(): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>("[data-presentation-slide]"));
 }
 
-type PresentationDeckProps = {
-  slides: readonly SlideDefinition[];
-  children: ReactNode;
-};
+function readStopFractions(el: HTMLElement): number[] {
+  const raw = el.dataset.stopFractions;
+  if (!raw) return [0.5];
+  const parsed = raw
+    .split(",")
+    .map(Number)
+    .filter((value) => !Number.isNaN(value));
+  return parsed.length > 0 ? parsed : [0.5];
+}
 
-export function PresentationDeck({ slides, children }: PresentationDeckProps) {
-  const [state, dispatch] = useReducer(
-    presentationReducer,
-    createPresentationState(
-      slides,
-      typeof window === "undefined" ? "" : window.location.hash,
-    ),
-  );
+function slideStopTargets(el: HTMLElement): number[] {
+  const top = window.scrollY + el.getBoundingClientRect().top;
+  if (el.dataset.slideMode !== "pinned") return [top];
+
+  const scrollable = Math.max(0, el.offsetHeight - window.innerHeight);
+  return readStopFractions(el).map((fraction) => top + fraction * scrollable);
+}
+
+function allStopTargets(): number[] {
+  return slideElements().flatMap(slideStopTargets);
+}
+
+function nextStopTarget(targets: number[], y: number): number | null {
+  const upcoming = targets.filter((target) => target > y);
+  return upcoming.length > 0 ? Math.min(...upcoming) : null;
+}
+
+function previousStopTarget(targets: number[], y: number): number | null {
+  const passed = targets.filter((target) => target < y);
+  return passed.length > 0 ? Math.max(...passed) : null;
+}
+
+function scrollToTarget(target: number, smooth: boolean) {
+  window.scrollTo({ top: target, behavior: smooth ? "smooth" : "auto" });
+}
+
+function scrollToIndex(targets: number[], index: number, smooth: boolean) {
+  if (targets.length === 0) return;
+  const clamped = Math.min(targets.length - 1, Math.max(0, index));
+  scrollToTarget(targets[clamped], smooth);
+}
+
+function currentSlideIndexFor(elements: HTMLElement[]): number {
+  const markerY = window.scrollY + window.innerHeight / 2;
+  let index = 0;
+  elements.forEach((el, i) => {
+    const top = window.scrollY + el.getBoundingClientRect().top;
+    if (top <= markerY) index = i;
+  });
+  return index;
+}
+
+type PresentationDeckProps = { children: ReactNode };
+
+export function PresentationDeck({ children }: PresentationDeckProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
-  const wheelDelta = useRef(0);
-  const wheelLocked = useRef(false);
-  const wheelLockTimeout = useRef<number | null>(null);
-  const touchStartY = useRef<number | null>(null);
-
-  const next = useCallback(() => dispatch({ type: "NEXT" }), []);
-  const previous = useCallback(() => dispatch({ type: "PREVIOUS" }), []);
-  const goTo = useCallback(
-    (slideIndex: number, revealStep?: number) => {
-      dispatch({ type: "GO_TO", slideIndex, revealStep });
-    },
-    [],
-  );
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [totalSlides, setTotalSlides] = useState(0);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+  const [jsEnhanced, setJsEnhanced] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     if (!mediaQuery) return;
 
     const updateReducedMotion = () => setReducedMotion(mediaQuery.matches);
-    mediaQuery.addEventListener("change", updateReducedMotion);
     updateReducedMotion();
+    mediaQuery.addEventListener("change", updateReducedMotion);
     return () => mediaQuery.removeEventListener("change", updateReducedMotion);
   }, []);
+
+  const updateFromScroll = useCallback(() => {
+    const elements = slideElements();
+    setTotalSlides(elements.length);
+    const slideIndex = currentSlideIndexFor(elements);
+    setCurrentSlideIndex(slideIndex);
+
+    const targets = allStopTargets();
+    setAtStart(previousStopTarget(targets, window.scrollY) === null);
+    setAtEnd(nextStopTarget(targets, window.scrollY) === null);
+
+    const activeId = elements[slideIndex]?.id;
+    if (activeId && window.location.hash !== `#${activeId}`) {
+      window.history.replaceState(null, "", `#${activeId}`);
+    }
+  }, []);
+
+  const goTo = useCallback(
+    (slideId: string, behavior?: "smooth" | "auto") => {
+      const el = document.getElementById(slideId);
+      if (!el) return;
+      const targets = slideStopTargets(el);
+      window.scrollTo({
+        top: targets[0],
+        behavior: behavior ?? (reducedMotion ? "auto" : "smooth"),
+      });
+    },
+    [reducedMotion],
+  );
+
+  useEffect(() => {
+    setJsEnhanced(true);
+
+    const initialId = window.location.hash.replace("#", "");
+    if (initialId) goTo(initialId, "auto");
+
+    updateFromScroll();
+
+    let frame: number | null = null;
+    const onScroll = () => {
+      if (frame !== null) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        updateFromScroll();
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame !== null) window.cancelAnimationFrame(frame);
+    };
+    // Intentionally runs once on mount; goTo/updateFromScroll close over
+    // reducedMotion via refs-free reads of live DOM/window state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const next = useCallback(() => {
+    const target = nextStopTarget(allStopTargets(), window.scrollY);
+    if (target !== null) scrollToTarget(target, !reducedMotion);
+  }, [reducedMotion]);
+
+  const previous = useCallback(() => {
+    const target = previousStopTarget(allStopTargets(), window.scrollY);
+    if (target !== null) scrollToTarget(target, !reducedMotion);
+  }, [reducedMotion]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -109,116 +204,52 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
 
       if (["ArrowDown", "ArrowRight", "PageDown", " ", "Spacebar"].includes(event.key)) {
         event.preventDefault();
-        dispatch({ type: "NEXT" });
+        next();
       } else if (["ArrowUp", "ArrowLeft", "PageUp"].includes(event.key)) {
         event.preventDefault();
-        dispatch({ type: "PREVIOUS" });
+        previous();
       } else if (event.key === "Home") {
         event.preventDefault();
-        dispatch({ type: "HOME" });
+        scrollToIndex(allStopTargets(), 0, !reducedMotion);
       } else if (event.key === "End") {
         event.preventDefault();
-        dispatch({ type: "END" });
+        const targets = allStopTargets();
+        scrollToIndex(targets, targets.length - 1, !reducedMotion);
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
-
-  useEffect(() => {
-    const onWheel = (event: WheelEvent) => {
-      if (isInteractiveTarget(event.target)) return;
-
-      event.preventDefault();
-      if (wheelLocked.current) return;
-
-      wheelDelta.current += event.deltaY;
-      if (Math.abs(wheelDelta.current) < wheelStepThreshold) return;
-
-      wheelLocked.current = true;
-      dispatch({ type: wheelDelta.current > 0 ? "NEXT" : "PREVIOUS" });
-      wheelDelta.current = 0;
-
-      wheelLockTimeout.current = window.setTimeout(() => {
-        wheelLocked.current = false;
-        wheelLockTimeout.current = null;
-      }, wheelStepCooldownMs);
-    };
-
-    const onTouchStart = (event: TouchEvent) => {
-      touchStartY.current = event.touches[0]?.clientY ?? null;
-    };
-
-    const onTouchEnd = (event: TouchEvent) => {
-      if (touchStartY.current === null) {
-        return;
-      }
-      if (
-        isInteractiveTarget(event.target) ||
-        isInteractiveTarget(document.activeElement)
-      ) {
-        touchStartY.current = null;
-        return;
-      }
-      const delta =
-        touchStartY.current -
-        (event.changedTouches[0]?.clientY ?? touchStartY.current);
-      if (Math.abs(delta) >= 55) {
-        dispatch({ type: delta > 0 ? "NEXT" : "PREVIOUS" });
-      }
-      touchStartY.current = null;
-    };
-
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("touchstart", onTouchStart);
-    window.addEventListener("touchend", onTouchEnd);
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
-      if (wheelLockTimeout.current !== null) {
-        window.clearTimeout(wheelLockTimeout.current);
-        wheelLockTimeout.current = null;
-      }
-      wheelDelta.current = 0;
-      wheelLocked.current = false;
-    };
-  }, []);
+  }, [next, previous, reducedMotion]);
 
   useEffect(() => {
     const onHashChange = () => {
-      const slideIndex = slides.findIndex((slide) => `#${slide.id}` === window.location.hash);
-      if (slideIndex >= 0) dispatch({ type: "GO_TO", slideIndex });
+      const slideId = window.location.hash.replace("#", "");
+      if (slideId) goTo(slideId);
     };
-
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
-  }, [slides]);
-
-  useEffect(() => {
-    const activeId = state.slides[state.slideIndex]?.id;
-    if (!activeId) return;
-
-    const shouldReduceMotion =
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ??
-      reducedMotion;
-    window.history.replaceState(null, "", `#${activeId}`);
-    document.getElementById(activeId)?.scrollIntoView({
-      behavior: shouldReduceMotion ? "auto" : "smooth",
-      block: "start",
-    });
-  }, [reducedMotion, state.slideIndex, state.slides]);
+  }, [goTo]);
 
   const contextValue = useMemo(
-    () => ({ state, next, previous, goTo, reducedMotion }),
-    [goTo, next, previous, reducedMotion, state],
+    () => ({
+      reducedMotion,
+      currentSlideIndex,
+      totalSlides,
+      atStart,
+      atEnd,
+      next,
+      previous,
+      goTo,
+    }),
+    [reducedMotion, currentSlideIndex, totalSlides, atStart, atEnd, next, previous, goTo],
   );
 
   return (
     <PresentationContext.Provider value={contextValue}>
       <div
         data-presentation-deck
+        data-js-enhanced={String(jsEnhanced)}
         data-reduced-motion={String(reducedMotion)}
       >
         {children}
