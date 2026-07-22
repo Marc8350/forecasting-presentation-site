@@ -11,6 +11,8 @@ export function StorySections() {
       <PresentationSlide
         id="challenge"
         className="story-section challenge-section"
+        revealGroupCount={2}
+        cycles={[{ at: 1, itemCount: CONTENT.challenges.length }]}
       >
         <div className="page-shell">
           <div className="section-kicker">
@@ -42,6 +44,8 @@ export function StorySections() {
       <PresentationSlide
         id="opportunity"
         className="story-section opportunity-section"
+        revealGroupCount={2}
+        cycles={[{ at: 1, itemCount: CONTENT.opportunityUseCases.length }]}
       >
         <div className="page-shell opportunity-grid">
           <div className="opportunity-copy">
@@ -66,6 +70,8 @@ export function StorySections() {
       <PresentationSlide
         id="platform-overview"
         className="story-section journey-section"
+        revealGroupCount={2}
+        cycles={[{ at: 1, itemCount: CONTENT.platformBlocks.length }]}
       >
         <div className="page-shell">
           <div className="section-kicker">

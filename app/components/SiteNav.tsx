@@ -4,18 +4,18 @@ import type { MouseEvent } from "react";
 import { usePresentation } from "./presentation/PresentationDeck";
 
 const chapters = [
-  { label: "Story", href: "#challenge", slideIndex: 1 },
-  { label: "Platform", href: "#platform", slideIndex: 4 },
-  { label: "Videos", href: "#videos", slideIndex: 5 },
-  { label: "Evidence", href: "#evidence", slideIndex: 6 },
+  { label: "Story", href: "#challenge" },
+  { label: "Platform", href: "#platform" },
+  { label: "Videos", href: "#videos" },
+  { label: "Evidence", href: "#evidence" },
 ] as const;
 
 export function SiteNav() {
   const { goTo } = usePresentation();
 
-  const navigate = (event: MouseEvent<HTMLAnchorElement>, slideIndex: number) => {
+  const navigate = (event: MouseEvent<HTMLAnchorElement>, slideId: string) => {
     event.preventDefault();
-    goTo(slideIndex);
+    goTo(slideId);
   };
 
   return (
@@ -24,19 +24,15 @@ export function SiteNav() {
         className="nav-brand"
         href="#opening"
         aria-label="KIT and BASF forecasting showcase home"
-        onClick={(event) => navigate(event, 0)}
+        onClick={(event) => navigate(event, "opening")}
       >
         <img src="/assets/kit-logo.png" alt="KIT" />
         <span className="nav-divider" aria-hidden="true" />
         <span>Forecasting showcase</span>
       </a>
       <div className="nav-links">
-        {chapters.map(({ label, href, slideIndex }) => (
-          <a
-            key={href}
-            href={href}
-            onClick={(event) => navigate(event, slideIndex)}
-          >
+        {chapters.map(({ label, href }) => (
+          <a key={href} href={href} onClick={(event) => navigate(event, href.slice(1))}>
             {label}
           </a>
         ))}

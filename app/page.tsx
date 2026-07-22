@@ -1,3 +1,4 @@
+import { CONTENT } from "./content/site-content";
 import { Closing } from "./components/Closing";
 import { EvidenceGallery } from "./components/EvidenceGallery";
 import { ForecastShowcase } from "./components/ForecastShowcase";
@@ -10,39 +11,33 @@ import { SiteNav } from "./components/SiteNav";
 import { StorySections } from "./components/StorySections";
 import { VideoGallery } from "./components/VideoGallery";
 
-const SLIDES = [
-  { id: "opening", revealCount: 3 },
-  { id: "challenge", revealCount: 2 },
-  { id: "opportunity", revealCount: 2 },
-  { id: "platform-overview", revealCount: 2 },
-  { id: "platform", revealCount: 0 },
-  { id: "videos", revealCount: 2 },
-  { id: "evidence", revealCount: 1 },
-  { id: "closing", revealCount: 3 },
-] as const;
-
 export default function Page() {
   return (
     <main>
-      <PresentationDeck slides={SLIDES}>
+      <PresentationDeck>
         <SiteNav />
 
-        <PresentationSlide id="opening">
+        <PresentationSlide id="opening" revealGroupCount={3}>
           <Hero />
         </PresentationSlide>
 
         <StorySections />
 
-        <PresentationSlide id="platform" className="product-section">
+        <PresentationSlide
+          id="platform"
+          className="product-section"
+          revealGroupCount={1}
+          mode="flow"
+        >
           <div className="page-shell">
-            <div className="product-intro">
+            <Reveal at={1} className="product-intro">
               <p className="eyebrow light">Interactive forecasting platform</p>
               <h2>Explore the complete forecasting lifecycle.</h2>
               <p>
                 Every control below is functional. Walk through a deterministic
                 simulation from sample data to an operational champion model.
               </p>
-            </div>
+            </Reveal>
             <div
               data-testid="forecasting-showcase-wrapper"
               data-presentation-interactive="true"
@@ -52,7 +47,12 @@ export default function Page() {
           </div>
         </PresentationSlide>
 
-        <PresentationSlide id="videos" className="story-section video-section">
+        <PresentationSlide
+          id="videos"
+          className="story-section video-section"
+          revealGroupCount={2}
+          cycles={[{ at: 2, itemCount: CONTENT.videos.length }]}
+        >
           <div className="page-shell">
             <Reveal at={1}>
               <div className="section-kicker">
@@ -77,6 +77,8 @@ export default function Page() {
         <PresentationSlide
           id="evidence"
           className="story-section evidence-section"
+          revealGroupCount={1}
+          mode="flow"
         >
           <div className="page-shell">
             <div className="section-kicker">
@@ -98,7 +100,7 @@ export default function Page() {
           </div>
         </PresentationSlide>
 
-        <PresentationSlide id="closing">
+        <PresentationSlide id="closing" revealGroupCount={3}>
           <Closing />
         </PresentationSlide>
 
