@@ -14,18 +14,18 @@ export function VideoGallery() {
 
   return (
     <div className="video-carousel video-card" data-presentation-interactive="true">
-      <div className={`video-poster poster-${activeIndex + 1}`} aria-hidden="true">
-        <div className="poster-window">
-          <span className="poster-rail"><i /><i /><i /><i /></span>
-          <span className="poster-canvas"><i /><i /><i /><i /><i /></span>
-        </div>
-        <span className="video-number">0{activeIndex + 1}</span>
-        <span className="video-state">Video coming soon</span>
+      <div className="video-embed">
+        <iframe
+          key={active.id}
+          src={`https://www.youtube.com/embed/${active.youtubeId}`}
+          title={active.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
       </div>
       <div className="video-body video-carousel-copy" aria-live="polite">
         <div>
           <span>0{activeIndex + 1} / 0{CONTENT.videos.length}</span>
-          <span>{active.duration}</span>
         </div>
         <h3>{active.title}</h3>
         <p>{active.description}</p>

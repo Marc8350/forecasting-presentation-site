@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Page from "../page";
-import { CONTENT } from "../content/site-content";
 
 beforeEach(() => {
   window.history.replaceState(null, "", "/");
@@ -9,7 +8,7 @@ beforeEach(() => {
 });
 
 describe("presentation site shell", () => {
-  it("composes the complete nine-slide presentation with controls and identities", () => {
+  it("composes the complete eight-slide presentation with controls and identities", () => {
     render(<Page />);
 
     expect(
@@ -30,11 +29,11 @@ describe("presentation site shell", () => {
     expect(
       screen.getByAltText("Karlsruhe Institute of Technology (KIT)"),
     ).toBeInTheDocument();
-    expect(screen.getByText(CONTENT.scopeStatement)).toBeInTheDocument();
+    expect(screen.getByText("Scan me to explore the mockup")).toBeInTheDocument();
     expect(
       screen.getByText("Interactive forecasting platform"),
     ).toBeInTheDocument();
-    expect(screen.getAllByTestId(/slide-/)).toHaveLength(9);
+    expect(screen.getAllByTestId(/slide-/)).toHaveLength(8);
   });
 
   it("keeps chapter hashes while navigating through presentation state", async () => {

@@ -14,7 +14,6 @@ const SLIDES = [
   { id: "opening", revealCount: 3 },
   { id: "challenge", revealCount: 2 },
   { id: "opportunity", revealCount: 2 },
-  { id: "scope", revealCount: 2 },
   { id: "platform-overview", revealCount: 2 },
   { id: "platform", revealCount: 1 },
   { id: "videos", revealCount: 2 },
@@ -57,15 +56,15 @@ export default function Page() {
           <div className="page-shell">
             <Reveal at={1}>
               <div className="section-kicker">
-                <span>05</span>
+                <span>04</span>
                 <p>Demonstrations</p>
               </div>
               <div className="section-heading split-heading">
-                <h2 id="videos-title">Three views into the working system.</h2>
+                <h2 id="videos-title">Two views into the working system.</h2>
                 <p>
-                  The original deck reserved three demo chapters. These
-                  replacement-ready states explain what each future recording
-                  will cover.
+                  Watch the platform in action: a data scientist exploring what
+                  the system already knows, and a domain expert extending it
+                  with a new signal.
                 </p>
               </div>
             </Reveal>
@@ -81,7 +80,7 @@ export default function Page() {
         >
           <div className="page-shell">
             <div className="section-kicker">
-              <span>06</span>
+              <span>05</span>
               <p>Backup evidence</p>
             </div>
             <div className="section-heading split-heading">

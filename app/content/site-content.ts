@@ -1,7 +1,5 @@
 export const CONTENT = {
   team: ["Erik Dwornik", "Marc Rodig", "Dary Lin"],
-  scopeStatement:
-    "In the BASF Agricultural Solutions setting, we aim to predict sales for five product groups.",
   targets: [
     "Insecticides",
     "Herbicides",
@@ -14,29 +12,29 @@ export const CONTENT = {
       id: "silos",
       title: "Siloed data infrastructure",
       explanation:
-        "Important sales and market signals are distributed across systems, owners, and formats.",
-      image: "/assets/fields/challenge-silos-v2.png",
+        "Features are scattered across multiple, non-connected sources: important signals are distributed across systems, owners, and formats. An ERP system holding order data, for example, usually isn't connected to a weather platform — so building one feature table means integrating systems that were never designed to talk to each other.",
+      image: "/assets/fields/challenge-silos-v2.jpg",
     },
     {
       id: "history",
-      title: "Limited historical data availability",
+      title: "Inconsistent data quality and data types",
       explanation:
-        "Short or incomplete histories make robust validation and seasonality detection harder.",
-      image: "/assets/fields/challenge-history-v2.png",
+        "Data might contain missing values or errors which are not properly documented, and comparable fields can arrive in different formats across sources — making it hard to trust a signal before it has been cleaned and validated.",
+      image: "/assets/fields/challenge-history-v2.jpg",
     },
     {
       id: "domain",
       title: "Missing domain knowledge",
       explanation:
-        "Product, crop, weather, and market context are necessary to interpret forecast drivers correctly.",
-      image: "/assets/fields/challenge-domain-v2.png",
+        "When forecasting deeply technical products, the data scientist responsible for the forecast might not possess the domain knowledge needed to design the most powerful features. In our case, these are specific biological indicators for when pests are likely to emerge, based on weather conditions.",
+      image: "/assets/fields/challenge-domain-v2.jpg",
     },
     {
       id: "research",
       title: "Time-intensive model research",
       explanation:
-        "Repeatedly comparing new forecasting methods consumes expert time and slows business decisions.",
-      image: "/assets/fields/challenge-research-v2.png",
+        "New models require data scientists to familiarize themselves with them: understanding how to interpret their output, what their inputs require, and how to carefully transform existing data into fitting inputs before the model can even be evaluated.",
+      image: "/assets/fields/challenge-research-v2.jpg",
     },
   ],
   opportunity: {
@@ -46,24 +44,17 @@ export const CONTENT = {
   videos: [
     {
       id: "demo-1",
-      title: "From data to a forecast-ready foundation",
+      title: "Exploring the features already in the system",
       description:
-        "See how sales history and external signals become a validated forecasting dataset.",
-      duration: "Runtime unavailable",
+        "A data scientist walks through the features already available in the platform before building anything new on top of them.",
+      youtubeId: "3SmZsfm7_mw",
     },
     {
       id: "demo-2",
-      title: "Selecting and training the right model portfolio",
+      title: "Contributing a new feature",
       description:
-        "Compare statistical, machine-learning, and foundation-model strategies in one workflow.",
-      duration: "Runtime unavailable",
-    },
-    {
-      id: "demo-3",
-      title: "Explaining, exporting, and operationalizing results",
-      description:
-        "Move from model rankings and feature drivers to registry and retraining decisions.",
-      duration: "Runtime unavailable",
+        "A biologist first reviews the existing data, then discovers new open-source soil data and ingests it into the architecture automatically.",
+      youtubeId: "hBWWQyUH2-U",
     },
   ],
   opportunityUseCases: [
@@ -71,25 +62,25 @@ export const CONTENT = {
       id: "understand",
       title: "Understand",
       explanation:
-        "AI profiles unfamiliar datasets, flags quality issues, and summarizes the available forecasting context.",
+        "AI takes the role of an advising data scientist: helping you understand a datasource by visualizing it, flagging quality issues, and connecting it to the existing forecasting context.",
     },
     {
       id: "research",
       title: "Research",
       explanation:
-        "AI helps discover relevant signals, methods, and evidence for a specific product group.",
+        "AI agents help discover relevant signals in open sources, along with methods and evidence in the literature, as a foundation for building better features.",
     },
     {
       id: "forecast",
       title: "Forecast",
       explanation:
-        "Foundation and conventional models can be configured, compared, and combined within one workflow.",
+        "GenAI agents help implement forecast models — understanding their architecture and intended use case within a framework that makes implementation and comparison simple, speeding up iteration.",
     },
     {
       id: "explain",
       title: "Explain",
       explanation:
-        "AI translates model behavior and forecast drivers for technical and business stakeholders.",
+        "AI translates model behavior and forecast drivers for technical and business stakeholders. A non-technical stakeholder can simply ask, \"What is the most important external driver for our revenue?\" and get a clear answer.",
     },
   ],
   platformBlocks: [
@@ -108,7 +99,7 @@ export const CONTENT = {
       title: "Model and evaluate",
       steps: [
         "Configure statistical, machine-learning, and foundation models with a few clicks.",
-        "Train consistently across product groups.",
+        "Train consistently across selected features.",
         "Backtest, compare, rank, and select candidate forecasts.",
       ],
     },
@@ -123,38 +114,80 @@ export const CONTENT = {
     },
   ],
   images: {
-    hero: "/assets/fields/hero-field-v2.png",
     opportunity: "/assets/fields/opportunity-field-v2.png",
-    scope: "/assets/fields/scope-field-v2.png",
   },
   evidence: [
     {
-      src: "/assets/evidence/composite-ranking.png",
-      title: "Cross-category feature ranking",
+      src: "/assets/evidence/heatmap-family-importance.png",
+      title: "Cross-category feature importance heatmap",
     },
     {
-      src: "/assets/evidence/seeds.png",
-      title: "Field crop seed drivers",
+      src: "/assets/evidence/top-features-by-group.png",
+      title: "Top features by product group (LightGBM)",
     },
     {
-      src: "/assets/evidence/herbicides.png",
-      title: "Herbicide drivers",
+      src: "/assets/evidence/top-features-moirai-by-group.png",
+      title: "Top features by product group (Moirai)",
     },
     {
-      src: "/assets/evidence/fungicides.png",
-      title: "Fungicide drivers",
-    },
-    {
-      src: "/assets/evidence/seed-treatment.png",
-      title: "Seed treatment drivers",
-    },
-    {
-      src: "/assets/evidence/insecticides.png",
+      src: "/assets/evidence/top-features-insecticides.png",
       title: "Insecticide drivers",
     },
     {
-      src: "/assets/evidence/feature-family-map.png",
-      title: "Recommended feature families",
+      src: "/assets/evidence/top-features-herbicides.png",
+      title: "Herbicide drivers",
+    },
+    {
+      src: "/assets/evidence/top-features-fungicides.png",
+      title: "Fungicide drivers",
+    },
+    {
+      src: "/assets/evidence/top-features-seed-treatment.png",
+      title: "Seed treatment drivers",
+    },
+    {
+      src: "/assets/evidence/top-features-field-crops-seeds.png",
+      title: "Field crop seed drivers",
+    },
+    {
+      src: "/assets/evidence/top-features-comparison-insecticides.png",
+      title: "Insecticide driver comparison",
+    },
+    {
+      src: "/assets/evidence/top-features-comparison-herbicides.png",
+      title: "Herbicide driver comparison",
+    },
+    {
+      src: "/assets/evidence/top-features-comparison-fungicides.png",
+      title: "Fungicide driver comparison",
+    },
+    {
+      src: "/assets/evidence/top-features-comparison-seed-treatment.png",
+      title: "Seed treatment driver comparison",
+    },
+    {
+      src: "/assets/evidence/top-features-comparison-field-crops-seeds.png",
+      title: "Field crop seed driver comparison",
+    },
+    {
+      src: "/assets/evidence/top-features-moirai-insecticides.png",
+      title: "Insecticide drivers (Moirai)",
+    },
+    {
+      src: "/assets/evidence/top-features-moirai-herbicides.png",
+      title: "Herbicide drivers (Moirai)",
+    },
+    {
+      src: "/assets/evidence/top-features-moirai-fungicides.png",
+      title: "Fungicide drivers (Moirai)",
+    },
+    {
+      src: "/assets/evidence/top-features-moirai-seed-treatment.png",
+      title: "Seed treatment drivers (Moirai)",
+    },
+    {
+      src: "/assets/evidence/top-features-moirai-field-crops-seeds.png",
+      title: "Field crop seed drivers (Moirai)",
     },
   ],
 } as const;

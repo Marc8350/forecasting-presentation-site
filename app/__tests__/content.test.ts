@@ -11,8 +11,8 @@ describe("approved English content", () => {
       "Seeds",
       "Seed treatment",
     ]);
-    expect(CONTENT.videos).toHaveLength(3);
-    expect(CONTENT.evidence).toHaveLength(7);
+    expect(CONTENT.videos).toHaveLength(2);
+    expect(CONTENT.evidence).toHaveLength(18);
     expect(CONTENT.team).toEqual([
       "Erik Dwornik",
       "Marc Rodig",
@@ -20,10 +20,7 @@ describe("approved English content", () => {
     ]);
   });
 
-  it("describes the BASF sales-forecast setting and every interactive story", () => {
-    expect(CONTENT.scopeStatement).toBe(
-      "In the BASF Agricultural Solutions setting, we aim to predict sales for five product groups.",
-    );
+  it("describes every interactive story", () => {
     expect(CONTENT.challenges).toHaveLength(4);
     expect(CONTENT.challenges.every((item) => item.explanation.length > 40)).toBe(
       true,
@@ -35,20 +32,22 @@ describe("approved English content", () => {
       "explain",
     ]);
     expect(CONTENT.platformBlocks).toHaveLength(3);
-    expect(CONTENT.videos).toHaveLength(3);
+    expect(CONTENT.videos).toHaveLength(2);
   });
 
-  it("includes every locally hosted field image", () => {
+  it("includes every locally hosted field and evidence image", () => {
     for (const relativePath of [
-      "public/assets/fields/hero-field-v2.png",
-      "public/assets/fields/challenge-silos-v2.png",
-      "public/assets/fields/challenge-history-v2.png",
-      "public/assets/fields/challenge-domain-v2.png",
-      "public/assets/fields/challenge-research-v2.png",
+      "public/assets/qrcode.png",
+      "public/assets/fields/challenge-silos-v2.jpg",
+      "public/assets/fields/challenge-history-v2.jpg",
+      "public/assets/fields/challenge-domain-v2.jpg",
+      "public/assets/fields/challenge-research-v2.jpg",
       "public/assets/fields/opportunity-field-v2.png",
-      "public/assets/fields/scope-field-v2.png",
     ]) {
       expect(existsSync(join(process.cwd(), relativePath))).toBe(true);
+    }
+    for (const item of CONTENT.evidence) {
+      expect(existsSync(join(process.cwd(), "public", item.src))).toBe(true);
     }
   });
 

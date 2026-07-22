@@ -52,57 +52,19 @@ export function Hero() {
           </Reveal>
         </div>
         <Reveal at={2} className="hero-visual">
-          <div className="hero-photo-wrap">
-            <img
-              className="hero-photo"
-              src={CONTENT.images.hero}
-              alt="Agricultural field at sunset"
-            />
-            <div className="hero-photo-caption">
-              <span>Sales forecasting</span>
-              <span>From signals to decisions</span>
+          <div className="hero-qr-card">
+            <div className="hero-qr-plate">
+              <img
+                src="/assets/qrcode.png"
+                alt="QR code linking to the interactive forecasting mockup"
+                width={224}
+                height={224}
+              />
             </div>
-          </div>
-          <div className="signal-card signal-card-top">
-            <span className="status-dot" aria-hidden="true" />
-            <div>
-              <strong>13-week horizon</strong>
-              <span>Forecast-ready workflow</span>
-            </div>
-          </div>
-          <div className="signal-card signal-card-bottom">
-            <span className="mini-chart" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-            </span>
-            <div>
-              <strong>5 target groups</strong>
-              <span>One coherent platform</span>
-            </div>
+            <p className="hero-qr-caption">Scan me to explore the mockup</p>
           </div>
         </Reveal>
       </div>
-      <Reveal at={3} className="hero-metrics page-shell">
-        <div>
-          <strong>5</strong>
-          <span>Forecast targets</span>
-        </div>
-        <div>
-          <strong>13</strong>
-          <span>Week horizon</span>
-        </div>
-        <div>
-          <strong>3</strong>
-          <span>Model families</span>
-        </div>
-        <div>
-          <strong>1</strong>
-          <span>End-to-end workflow</span>
-        </div>
-      </Reveal>
     </header>
   );
 }

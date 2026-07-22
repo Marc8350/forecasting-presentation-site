@@ -5,9 +5,9 @@ import { usePresentation } from "./presentation/PresentationDeck";
 
 const chapters = [
   { label: "Story", href: "#challenge", slideIndex: 1 },
-  { label: "Platform", href: "#platform", slideIndex: 5 },
-  { label: "Videos", href: "#videos", slideIndex: 6 },
-  { label: "Evidence", href: "#evidence", slideIndex: 7 },
+  { label: "Platform", href: "#platform", slideIndex: 4 },
+  { label: "Videos", href: "#videos", slideIndex: 5 },
+  { label: "Evidence", href: "#evidence", slideIndex: 6 },
 ] as const;
 
 export function SiteNav() {
