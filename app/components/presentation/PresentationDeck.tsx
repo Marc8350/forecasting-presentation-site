@@ -26,7 +26,9 @@ const PresentationContext = createContext<PresentationContextValue | null>(null)
 export const PresentationSlideContext = createContext({ revealStep: 0 });
 
 const wheelStepThreshold = 45;
-const wheelGestureSettleMs = 120;
+// After each dispatched step, wheel input is ignored for a fixed cooldown so
+// trackpad momentum cannot lock the deck or skip multiple steps at once.
+const wheelStepCooldownMs = 650;
 
 const interactiveSelector = [
   "a",
@@ -69,8 +71,8 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
   );
   const [reducedMotion, setReducedMotion] = useState(false);
   const wheelDelta = useRef(0);
-  const wheelGestureActive = useRef(false);
-  const wheelGestureTimeout = useRef<number | null>(null);
+  const wheelLocked = useRef(false);
+  const wheelLockTimeout = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
   const next = useCallback(() => dispatch({ type: "NEXT" }), []);
@@ -129,23 +131,19 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
       if (isInteractiveTarget(event.target)) return;
 
       event.preventDefault();
-      if (wheelGestureTimeout.current !== null) {
-        window.clearTimeout(wheelGestureTimeout.current);
-      }
-      wheelGestureTimeout.current = window.setTimeout(() => {
-        wheelDelta.current = 0;
-        wheelGestureActive.current = false;
-        wheelGestureTimeout.current = null;
-      }, wheelGestureSettleMs);
-
-      if (wheelGestureActive.current) return;
+      if (wheelLocked.current) return;
 
       wheelDelta.current += event.deltaY;
       if (Math.abs(wheelDelta.current) < wheelStepThreshold) return;
 
-      wheelGestureActive.current = true;
+      wheelLocked.current = true;
       dispatch({ type: wheelDelta.current > 0 ? "NEXT" : "PREVIOUS" });
       wheelDelta.current = 0;
+
+      wheelLockTimeout.current = window.setTimeout(() => {
+        wheelLocked.current = false;
+        wheelLockTimeout.current = null;
+      }, wheelStepCooldownMs);
     };
 
     const onTouchStart = (event: TouchEvent) => {
@@ -179,12 +177,12 @@ export function PresentationDeck({ slides, children }: PresentationDeckProps) {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
-      if (wheelGestureTimeout.current !== null) {
-        window.clearTimeout(wheelGestureTimeout.current);
-        wheelGestureTimeout.current = null;
+      if (wheelLockTimeout.current !== null) {
+        window.clearTimeout(wheelLockTimeout.current);
+        wheelLockTimeout.current = null;
       }
       wheelDelta.current = 0;
-      wheelGestureActive.current = false;
+      wheelLocked.current = false;
     };
   }, []);
 

@@ -110,7 +110,7 @@ describe("presentation controller", () => {
     expect(screen.getByTestId("slide-challenge")).toHaveAttribute("data-active", "true");
   });
 
-  it("sequences one step per settled wheel gesture without native scrolling", () => {
+  it("sequences one step per wheel gesture, ignoring input during the cooldown, without native scrolling", () => {
     vi.useFakeTimers();
     const addEventListenerSpy = vi.spyOn(window, "addEventListener");
     render(<TestDeck />);
@@ -127,7 +127,14 @@ describe("presentation controller", () => {
     dispatchWheel(window, 80);
     expect(screen.getByTestId("slide-opening")).toHaveAttribute("data-active", "true");
 
-    act(() => vi.advanceTimersByTime(150));
+    // Sustained momentum keeps firing wheel events well past the old 120ms
+    // settle window; the deck must still advance on a fixed per-step cooldown
+    // rather than staying locked for the whole gesture.
+    act(() => vi.advanceTimersByTime(300));
+    dispatchWheel(window, 80);
+    expect(screen.getByTestId("slide-opening")).toHaveAttribute("data-active", "true");
+
+    act(() => vi.advanceTimersByTime(400));
     dispatchWheel(window, 45);
     expect(screen.getByTestId("slide-challenge")).toHaveAttribute("data-active", "true");
 
@@ -168,7 +175,7 @@ describe("presentation controller", () => {
     expect(screen.getByTestId("slide-opening")).toHaveAttribute("data-active", "true");
   });
 
-  it("clears the wheel gesture settle timer when the deck unmounts", () => {
+  it("clears the wheel cooldown timer when the deck unmounts", () => {
     vi.useFakeTimers();
     const clearTimeoutSpy = vi.spyOn(window, "clearTimeout");
     const { unmount } = render(<TestDeck />);
