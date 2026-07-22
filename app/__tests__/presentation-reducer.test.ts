@@ -24,6 +24,14 @@ describe("presentation reducer", () => {
     expect(state).toMatchObject({ slideIndex: 0, revealStep: 2 });
   });
 
+  it("never un-reveals: stepping back lands fully revealed on the previous slide", () => {
+    const state = presentationReducer(
+      { slides, slideIndex: 1, revealStep: 2 },
+      { type: "PREVIOUS" },
+    );
+    expect(state).toMatchObject({ slideIndex: 0, revealStep: 2 });
+  });
+
   it("supports hash, home, end, and bounded navigation", () => {
     expect(createPresentationState(slides, "#challenge")).toMatchObject({
       slideIndex: 1,

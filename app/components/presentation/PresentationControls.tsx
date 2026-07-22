@@ -5,7 +5,7 @@ import { usePresentation } from "./PresentationDeck";
 export function PresentationControls() {
   const { state, next, previous } = usePresentation();
   const currentSlide = state.slides[state.slideIndex];
-  const atStart = state.slideIndex === 0 && state.revealStep === 0;
+  const atStart = state.slideIndex === 0;
   const atEnd =
     state.slideIndex === state.slides.length - 1 &&
     state.revealStep === currentSlide?.revealCount;

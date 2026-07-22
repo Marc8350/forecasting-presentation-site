@@ -37,7 +37,8 @@ export function presentationReducer(
   }
 
   if (action.type === "PREVIOUS") {
-    if (state.revealStep > 0) return { ...state, revealStep: state.revealStep - 1 };
+    // Going back always lands on the previous slide fully revealed so
+    // already-seen content is never hidden again.
     const slideIndex = clamp(
       state.slideIndex - 1,
       0,

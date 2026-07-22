@@ -46,7 +46,7 @@ export function Closing() {
           ))}
         </Reveal>
       </div>
-      <Reveal at={2} className="page-shell footer-line">
+      <Reveal at={3} className="page-shell footer-line">
         <span>Sales Forecasting Model for BASF</span>
         <span>2026 · Interactive presentation</span>
       </Reveal>

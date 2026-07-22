@@ -59,7 +59,7 @@ describe("presentation controller", () => {
     expect(() => renderToStaticMarkup(<TestDeck />)).not.toThrow();
   });
 
-  it("advances reveals before slides, reverses them, and protects focused controls", () => {
+  it("advances reveals before slides, never hides revealed content, and protects focused controls", () => {
     render(<TestDeck />);
 
     expect(screen.getByTestId("slide-opening")).toHaveAttribute("data-active", "true");
@@ -77,7 +77,16 @@ describe("presentation controller", () => {
 
     interactiveControl.blur();
     fireEvent.keyDown(window, { key: "ArrowLeft" });
-    expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "false");
+    // Going back never hides already-revealed content.
+    expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "true");
+    expect(screen.getByTestId("slide-opening")).toHaveAttribute("data-active", "true");
+
+    fireEvent.keyDown(window, { key: "ArrowRight" });
+    expect(screen.getByTestId("slide-challenge")).toHaveAttribute("data-active", "true");
+
+    fireEvent.keyDown(window, { key: "ArrowLeft" });
+    expect(screen.getByTestId("slide-opening")).toHaveAttribute("data-active", "true");
+    expect(screen.getByTestId("opening-reveal-1")).toHaveAttribute("data-visible", "true");
   });
 
   it("supports Home and End and syncs the active slide hash", () => {
@@ -200,7 +209,11 @@ describe("presentation controller", () => {
     expect(previous.closest("[data-presentation-controls]")).toBeInTheDocument();
     expect(previous).toBeDisabled();
     expect(screen.getByText("1 / 2")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Next presentation step" }));
+    const next = screen.getByRole("button", { name: "Next presentation step" });
+    fireEvent.click(next);
+    // Still on the first slide after revealing its single step.
+    expect(previous).toBeDisabled();
+    fireEvent.click(next);
     expect(screen.getByRole("button", { name: "Previous presentation step" })).toBeEnabled();
   });
 

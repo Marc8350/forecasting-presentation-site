@@ -18,7 +18,7 @@ const SLIDES = [
   { id: "platform", revealCount: 0 },
   { id: "videos", revealCount: 2 },
   { id: "evidence", revealCount: 1 },
-  { id: "closing", revealCount: 2 },
+  { id: "closing", revealCount: 3 },
 ] as const;
 
 export default function Page() {

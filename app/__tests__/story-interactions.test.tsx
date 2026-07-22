@@ -23,15 +23,15 @@ describe("story explorers", () => {
     const user = userEvent.setup();
     render(<OpportunityExplorer />);
 
-    const liveExplanation = screen.getByText(/advising data scientist/i);
+    const liveExplanation = screen.getByText(/discover relevant signals/i);
     expect(liveExplanation).toHaveAttribute("aria-live", "polite");
-    expect(screen.getByRole("button", { name: "Understand" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Research" })).toHaveAttribute("aria-pressed", "true");
 
     await user.click(screen.getByRole("button", { name: "Explain" }));
 
     expect(screen.getByText(/technical and business stakeholders/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Explain" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Understand" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Research" })).toHaveAttribute("aria-pressed", "false");
   });
 });
 

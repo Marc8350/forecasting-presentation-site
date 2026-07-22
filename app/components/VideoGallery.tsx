@@ -19,6 +19,7 @@ export function VideoGallery() {
           key={active.id}
           src={`https://www.youtube.com/embed/${active.youtubeId}`}
           title={active.title}
+          loading="lazy"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
