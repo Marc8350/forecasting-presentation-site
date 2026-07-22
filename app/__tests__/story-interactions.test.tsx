@@ -1,16 +1,41 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
+import { useMotionValue } from "motion/react";
+import { createRef } from "react";
 import userEvent from "@testing-library/user-event";
+import { SlideProgressContext } from "../presentation/scroll";
 import { ChallengeExplorer } from "../components/story/ChallengeExplorer";
 import { OpportunityExplorer } from "../components/story/OpportunityExplorer";
 import { PlatformBlocks } from "../components/story/PlatformBlocks";
 
+type HarnessStatics = { progress: ReturnType<typeof useMotionValue> };
+
+function ChallengeExplorerWithContext() {
+  const progress = useMotionValue(0.35);
+  const slideRef = createRef<HTMLDivElement>();
+  Object.assign(ChallengeExplorerWithContext as unknown as HarnessStatics, { progress });
+  return (
+    <div ref={slideRef}>
+      <SlideProgressContext.Provider
+        value={{ slideRef, progress, revealGroupCount: 2, mode: "pinned" }}
+      >
+        <ChallengeExplorer />
+      </SlideProgressContext.Provider>
+    </div>
+  );
+}
+
 describe("story explorers", () => {
   it("explains a selected forecasting challenge", async () => {
     const user = userEvent.setup();
-    render(<ChallengeExplorer />);
+    render(<ChallengeExplorerWithContext />);
 
     expect(screen.getByText(/distributed across systems, owners, and formats/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Siloed data infrastructure" })).toHaveAttribute("aria-pressed", "true");
+
+    const progress = (ChallengeExplorerWithContext as unknown as HarnessStatics).progress;
+    vi.spyOn(window, "scrollTo").mockImplementation(() => {
+      act(() => progress.set(0.45));
+    });
 
     await user.click(screen.getByRole("button", { name: "Inconsistent data quality and data types" }));
 

@@ -1,28 +1,26 @@
 "use client";
 
-import { useState } from "react";
 import { CONTENT } from "../../content/site-content";
+import { useCycleSelection } from "../../presentation/scroll";
 
 export function ChallengeExplorer() {
-  const [selectedId, setSelectedId] = useState(CONTENT.challenges[0].id);
-  const selected =
-    CONTENT.challenges.find((item) => item.id === selectedId) ??
-    CONTENT.challenges[0];
+  const { activeIndex, selectStop } = useCycleSelection(1, CONTENT.challenges.length);
+  const selected = CONTENT.challenges[activeIndex];
 
   return (
     <div className="challenge-explorer" data-presentation-interactive="true">
       <div className="challenge-options">
-        {CONTENT.challenges.map((item) => (
+        {CONTENT.challenges.map((item, index) => (
           <button
             key={item.id}
             type="button"
             aria-label={item.title}
-            aria-pressed={item.id === selectedId}
+            aria-pressed={index === activeIndex}
             className="challenge-option"
             style={{
               backgroundImage: `linear-gradient(180deg, transparent, rgba(4,31,27,.86)), url(${item.image})`,
             }}
-            onClick={() => setSelectedId(item.id)}
+            onClick={() => selectStop(index)}
           >
             <span>{item.title}</span>
           </button>
