@@ -43,6 +43,7 @@ describe("presentation site shell", () => {
   it("wires chapter navigation to the platform slide", async () => {
     const user = userEvent.setup();
     window.scrollTo = vi.fn();
+    const getElementByIdSpy = vi.spyOn(document, "getElementById");
     render(<Page />);
 
     const platformLink = screen.getByRole("link", { name: "Platform" });
@@ -50,6 +51,7 @@ describe("presentation site shell", () => {
 
     await user.click(platformLink);
 
+    expect(getElementByIdSpy).toHaveBeenCalledWith("platform");
     expect(window.scrollTo).toHaveBeenCalled();
   });
 
