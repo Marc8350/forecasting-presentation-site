@@ -1049,7 +1049,7 @@ body {
 [data-presentation-controls] {
   position: fixed;
   z-index: 220;
-  right: max(1rem, calc((100vw - 76rem) / 2));
+  right: 1.25rem;
   bottom: 1rem;
   display: grid;
   grid-template-columns: 2.75rem auto 2.75rem;
