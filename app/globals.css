@@ -309,11 +309,6 @@ body {
   background: var(--teal-600, #1f6f5c);
 }
 
-[data-presentation-controls] {
-  position: relative;
-  overflow: hidden;
-}
-
 .story-section {
   display: grid;
   align-items: center;
