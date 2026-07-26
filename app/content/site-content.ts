@@ -106,28 +106,58 @@ export const CONTENT = {
       id: "features",
       title: "Discover and build features",
       steps: [
-        "Explore useful internal and external data sources.",
-        "Ingest them safely through predefined data contracts.",
-        "Combine signals and domain knowledge into candidate features.",
-        "Rank features with statistical and machine-learning measures.",
+        {
+          text: "Explore useful internal and external data sources.",
+          highlights: ["Explore", "data sources"],
+        },
+        {
+          text: "Ingest them safely through predefined data contracts.",
+          highlights: ["Ingest them safely"],
+        },
+        {
+          text: "Combine signals and domain knowledge into candidate features.",
+          highlights: ["candidate features"],
+        },
+        {
+          text: "Rank features with statistical and machine-learning measures.",
+          highlights: ["Rank features"],
+        },
       ],
     },
     {
       id: "models",
       title: "Model and evaluate",
       steps: [
-        "Configure statistical, machine-learning, and foundation models with a few clicks.",
-        "Train consistently across selected features.",
-        "Backtest, compare, rank, and select candidate forecasts.",
+        {
+          text: "Configure statistical, machine-learning, and foundation models with a few clicks.",
+          highlights: ["Configure", "models"],
+        },
+        {
+          text: "Train consistently across selected features.",
+          highlights: ["Train consistently"],
+        },
+        {
+          text: "Backtest, compare, rank, and select candidate forecasts.",
+          highlights: ["candidate"],
+        },
       ],
     },
     {
       id: "operations",
       title: "Explain and operationalize",
       steps: [
-        "Explain data quality, feature relevance, forecast behavior, and model choice.",
-        "Adapt explanations for stakeholders with different technical backgrounds.",
-        "Export results and register the champion model for operational use.",
+        {
+          text: "Explain data quality, feature relevance, forecast behavior, and model choice.",
+          highlights: ["Explain"],
+        },
+        {
+          text: "Adapt explanations for stakeholders with different technical backgrounds.",
+          highlights: ["Adapt explanations", "different"],
+        },
+        {
+          text: "Export results and register the champion model for operational use.",
+          highlights: ["Export results"],
+        },
       ],
     },
   ],

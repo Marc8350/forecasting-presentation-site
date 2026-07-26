@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { CONTENT } from "../../content/site-content";
 import { useCycleSelection } from "../../presentation/scroll";
+import { HighlightedText } from "../ui/highlighted-text";
 
 export function PlatformBlocks() {
   const { activeIndex, selectStop } = useCycleSelection(1, CONTENT.platformBlocks.length);
@@ -24,10 +25,10 @@ export function PlatformBlocks() {
           </button>
         ))}
       </div>
-      <ol aria-live="polite">
+      <ol aria-live="polite" key={selected.id}>
         {selected.steps.map((step, index) => (
-          <li key={step} style={{ "--step-index": index } as CSSProperties}>
-            {step}
+          <li key={step.text} style={{ "--step-index": index } as CSSProperties}>
+            <HighlightedText text={step.text} phrases={step.highlights} />
           </li>
         ))}
       </ol>

@@ -102,7 +102,7 @@ describe("story platform", () => {
     render(<PlatformBlocksWithContext />);
 
     expect(
-      screen.getByText("Explore useful internal and external data sources."),
+      screen.getByText(/useful internal and external/),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Discover and build features" }),
@@ -121,7 +121,7 @@ describe("story platform", () => {
     await user.click(screen.getByRole("button", { name: "Model and evaluate" }));
 
     expect(
-      screen.getByText(/foundation models with a few clicks/i),
+      screen.getByText(/with a few clicks/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/backtest, compare, rank/i)).toBeInTheDocument();
     expect(screen.getByRole("list")).toContainElement(
