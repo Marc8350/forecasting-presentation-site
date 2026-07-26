@@ -74,6 +74,10 @@ export default function Page() {
           </div>
         </PresentationSlide>
 
+        <PresentationSlide id="closing" revealGroupCount={3}>
+          <Closing />
+        </PresentationSlide>
+
         <PresentationSlide
           id="evidence"
           className="story-section evidence-section"
@@ -98,10 +102,6 @@ export default function Page() {
               <EvidenceGallery />
             </Reveal>
           </div>
-        </PresentationSlide>
-
-        <PresentationSlide id="closing" revealGroupCount={3}>
-          <Closing />
         </PresentationSlide>
 
         <PresentationControls />
