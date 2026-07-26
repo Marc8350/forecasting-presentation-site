@@ -299,14 +299,16 @@ body {
   transition-delay: calc(var(--reveal-delay, 0) * 90ms);
 }
 
-.presentation-progress-line {
+.presentation-progress-ring {
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 3px;
-  width: 100%;
-  transform-origin: 0% 50%;
-  background: var(--teal-600, #1f6f5c);
+  inset: -3px;
+  padding: 3px;
+  border-radius: 999px;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
 }
 
 .story-section {

@@ -1,17 +1,22 @@
 "use client";
 
-import { motion, useScroll } from "motion/react";
+import { motion, useMotionTemplate, useScroll, useTransform } from "motion/react";
 import { usePresentation } from "./PresentationDeck";
 
 export function PresentationControls() {
   const { currentSlideIndex, totalSlides, atStart, atEnd, next, previous } = usePresentation();
   const { scrollYProgress } = useScroll();
+  const progress = useTransform(scrollYProgress, (value) =>
+    Math.min(1, Math.max(0, value))
+  );
+  const ring = useMotionTemplate`conic-gradient(var(--mint) calc(${progress} * 1turn), rgb(255 255 255 / 14%) 0)`;
 
   return (
     <div data-presentation-controls>
-      <motion.div
-        className="presentation-progress-line"
-        style={{ scaleX: scrollYProgress }}
+      <motion.span
+        className="presentation-progress-ring"
+        style={{ background: ring }}
+        aria-hidden="true"
       />
       <button
         type="button"
