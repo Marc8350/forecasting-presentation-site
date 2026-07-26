@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { CONTENT } from "../../content/site-content";
 import { useCycleSelection } from "../../presentation/scroll";
+import { HighlightedText } from "../ui/highlighted-text";
 
 const CLOCKWISE_IDS = ["research", "understand", "forecast", "explain"] as const;
 
@@ -37,8 +38,11 @@ export function OpportunityExplorer() {
           </button>
         ))}
       </div>
-      <p className="opportunity-explanation" aria-live="polite">
-        {selected.explanation}
+      <p className="opportunity-explanation" aria-live="polite" key={selected.id}>
+        <HighlightedText
+          text={selected.explanation}
+          phrases={selected.highlights}
+        />
       </p>
     </div>
   );

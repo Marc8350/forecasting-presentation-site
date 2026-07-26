@@ -13,6 +13,9 @@ export const CONTENT = {
       title: "Siloed data infrastructure",
       explanation:
         "Features are scattered across multiple, non-connected sources: important signals are distributed across systems, owners, and formats. An ERP system holding order data, for example, usually isn't connected to a weather platform — so building one feature table means integrating systems that were never designed to talk to each other.",
+      highlights: [
+        "building one feature table means integrating systems that were never designed to talk to each other",
+      ],
       image: "/assets/fields/challenge-silos-v2.jpg",
     },
     {
@@ -20,6 +23,7 @@ export const CONTENT = {
       title: "Inconsistent data quality and data types",
       explanation:
         "Data might contain missing values or errors which are not properly documented, and comparable fields can arrive in different formats across sources — making it hard to trust a signal before it has been cleaned and validated.",
+      highlights: ["missing values or errors", "cleaned and validated"],
       image: "/assets/fields/challenge-history-v2.jpg",
     },
     {
@@ -27,6 +31,9 @@ export const CONTENT = {
       title: "Missing domain knowledge",
       explanation:
         "When forecasting deeply technical products, the data scientist responsible for the forecast might not possess the domain knowledge needed to design the most powerful features. In our case, these are specific biological indicators for when pests are likely to emerge, based on weather conditions.",
+      highlights: [
+        "might not possess the domain knowledge needed to design the most powerful features",
+      ],
       image: "/assets/fields/challenge-domain-v2.jpg",
     },
     {
@@ -34,6 +41,7 @@ export const CONTENT = {
       title: "Time-intensive model research",
       explanation:
         "New models require data scientists to familiarize themselves with them: understanding how to interpret their output, what their inputs require, and how to carefully transform existing data into fitting inputs before the model can even be evaluated.",
+      highlights: ["require data scientists to familiarize themselves"],
       image: "/assets/fields/challenge-research-v2.jpg",
     },
   ],
@@ -63,24 +71,34 @@ export const CONTENT = {
       title: "Understand",
       explanation:
         "AI takes the role of an advising data scientist: helping you understand a datasource by visualizing it, flagging quality issues, and connecting it to the existing forecasting context.",
+      highlights: [
+        "visualizing it, flagging quality issues, and connecting it to the existing forecasting context.",
+      ],
     },
     {
       id: "research",
       title: "Research",
       explanation:
         "AI agents help discover relevant signals in open sources, along with methods and evidence in the literature, as a foundation for building better features.",
+      highlights: [
+        "discover relevant signals in open sources, along with methods and evidence in the literature",
+      ],
     },
     {
       id: "forecast",
       title: "Forecast",
       explanation:
         "GenAI agents help implement forecast models — understanding their architecture and intended use case within a framework that makes implementation and comparison simple, speeding up iteration.",
+      highlights: ["GenAI agents help implement forecast models"],
     },
     {
       id: "explain",
       title: "Explain",
       explanation:
         "AI translates model behavior and forecast drivers for technical and business stakeholders. A non-technical stakeholder can simply ask, \"What is the most important external driver for our revenue?\" and get a clear answer.",
+      highlights: [
+        "AI translates model behavior and forecast drivers for technical and business stakeholders",
+      ],
     },
   ],
   platformBlocks: [

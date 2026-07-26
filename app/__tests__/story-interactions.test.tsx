@@ -81,7 +81,7 @@ describe("story explorers", () => {
     // Clockwise display order is research, understand, forecast, explain —
     // "Research" is the first use case, selected by default at the start of its band.
     const liveExplanation = screen.getByText(/discover relevant signals/i);
-    expect(liveExplanation).toHaveAttribute("aria-live", "polite");
+    expect(liveExplanation.closest("[aria-live]")).toHaveAttribute("aria-live", "polite");
     expect(screen.getByRole("button", { name: "Research" })).toHaveAttribute("aria-pressed", "true");
 
     const progress = (OpportunityExplorerWithContext as unknown as HarnessStatics).progress;

@@ -311,6 +311,13 @@ body {
   mask-composite: exclude;
 }
 
+/* Keep highlighted copy readable on the yellow marker, even on dark slides.
+   inline (not inline-block) lets long phrases flow naturally across lines. */
+.text-highlight {
+  display: inline;
+  color: var(--teal-950);
+}
+
 .story-section {
   display: grid;
   align-items: center;
@@ -1605,8 +1612,8 @@ body {
   transition-duration: .01ms;
 }
 
-/* Tighten hero rhythm so copy never clips inside the 100vh pinned surface */
-@media (max-height: 47.5rem) and (min-width: 47.5rem) {
+/* Tighten hero/story rhythm so copy never clips inside the 100vh pinned surface */
+@media (max-height: 52rem) and (min-width: 47.5rem) {
   .hero {
     padding-top: 5.5rem;
   }
@@ -1629,6 +1636,16 @@ body {
 
   .hero-team {
     margin-top: 1.6rem;
+  }
+
+  .story-section {
+    padding-block: 5rem 2.5rem;
+  }
+
+  .challenge-explanation {
+    min-height: 0;
+    margin-top: .6rem;
+    padding: .9rem 1.15rem;
   }
 }
 

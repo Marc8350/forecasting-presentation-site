@@ -2,6 +2,7 @@
 
 import { CONTENT } from "../../content/site-content";
 import { useCycleSelection } from "../../presentation/scroll";
+import { HighlightedText } from "../ui/highlighted-text";
 
 export function ChallengeExplorer() {
   const { activeIndex, selectStop } = useCycleSelection(1, CONTENT.challenges.length);
@@ -28,7 +29,12 @@ export function ChallengeExplorer() {
       </div>
       <div className="challenge-explanation" aria-live="polite">
         <strong>{selected.title}</strong>
-        <p>{selected.explanation}</p>
+        <p key={selected.id}>
+          <HighlightedText
+            text={selected.explanation}
+            phrases={selected.highlights}
+          />
+        </p>
       </div>
     </div>
   );
