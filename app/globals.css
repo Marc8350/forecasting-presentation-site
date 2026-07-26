@@ -454,7 +454,7 @@ body {
 }
 
 .hero h1 {
-  font-size: clamp(3rem, 6vw, 6rem);
+  font-size: clamp(2.75rem, min(6vw, 8.75vh), 6rem);
   text-wrap: balance;
 }
 
@@ -1603,6 +1603,33 @@ body {
 [data-presentation-deck][data-reduced-motion="true"] [data-reveal] {
   transform: none;
   transition-duration: .01ms;
+}
+
+/* Tighten hero rhythm so copy never clips inside the 100vh pinned surface */
+@media (max-height: 47.5rem) and (min-width: 47.5rem) {
+  .hero {
+    padding-top: 5.5rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, min(5vw, 7.5vh), 4rem);
+  }
+
+  .hero-partnership {
+    margin: 1rem 0 .6rem;
+  }
+
+  .hero-lede {
+    margin-top: 1.15rem;
+  }
+
+  .hero-actions {
+    margin-top: 1.5rem;
+  }
+
+  .hero-team {
+    margin-top: 1.6rem;
+  }
 }
 
 [data-presentation-deck][data-reduced-motion="true"] *,
