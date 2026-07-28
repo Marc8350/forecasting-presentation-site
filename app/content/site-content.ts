@@ -273,5 +273,29 @@ export const CONTENT = {
       description:
         "Moirai recommends only two features for Field Crops Seeds, far fewer than the roughly 15 typical for the other four groups.",
     },
+    {
+      src: "/assets/evidence/moirai-backtest-insecticides.jpg",
+      title: "Insecticide forecast vs actual (Moirai)",
+      description:
+        "Moirai's 2024 backtest for Insecticides at weekly and monthly resolution: actual net sales in blue, the forecast in orange, and the p10–p90 band shaded. The forecast stays close to the baseline and misses the March spike and the October collapse, both of which fall outside the band.",
+    },
+    {
+      src: "/assets/evidence/moirai-backtest-herbicides.jpg",
+      title: "Herbicide forecast vs actual (Moirai)",
+      description:
+        "Moirai's 2024 backtest for Herbicides. This is the group the model tracks best — it picks up the spring ramp and the second-half decline, and actuals stay inside the p10–p90 band for most of the year, though it fires early on the March peak and misses the July spike.",
+    },
+    {
+      src: "/assets/evidence/moirai-backtest-fungicides.jpg",
+      title: "Fungicide forecast vs actual (Moirai)",
+      description:
+        "Moirai's 2024 backtest for Fungicides. The forecast runs flat while actuals show a pronounced spring season, so the model systematically under-predicts the first half and only converges once demand falls back from September onward.",
+    },
+    {
+      src: "/assets/evidence/moirai-backtest-field-crops-seeds.jpg",
+      title: "Field crop seed forecast vs actual (Moirai)",
+      description:
+        "Moirai's 2024 backtest for Field Crops Seeds. Sales are near-zero and spiky, and the forecast flatlines with a very wide p10–p90 band — the uncertainty dwarfs the signal, matching the thin feature set this group produces.",
+    },
   ],
 } as const;

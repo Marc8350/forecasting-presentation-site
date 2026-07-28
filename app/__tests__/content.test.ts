@@ -12,7 +12,7 @@ describe("approved English content", () => {
       "Seed treatment",
     ]);
     expect(CONTENT.videos).toHaveLength(2);
-    expect(CONTENT.evidence).toHaveLength(18);
+    expect(CONTENT.evidence).toHaveLength(22);
     expect(CONTENT.team).toEqual([
       "Erik Dwornik",
       "Marc Rodig",
