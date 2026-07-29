@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CONTENT } from "../content/site-content";
 
 export function EvidenceGallery() {
@@ -100,32 +101,34 @@ export function EvidenceGallery() {
           ))}
         </div>
       </div>
-      {dialogOpen && (
-        <div
-          className="evidence-overlay"
-          role="presentation"
-          data-presentation-interactive="true"
-          onMouseDown={(event) => {
-            if (event.currentTarget === event.target) close();
-          }}
-        >
+      {dialogOpen &&
+        createPortal(
           <div
-            className="evidence-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label={active.title}
+            className="evidence-overlay"
+            role="presentation"
             data-presentation-interactive="true"
+            onMouseDown={(event) => {
+              if (event.currentTarget === event.target) close();
+            }}
           >
-            <div className="dialog-top"><div><span>Technical evidence</span><h3>{active.title}</h3></div><button type="button" aria-label="Close evidence" onClick={close}>×</button></div>
-            <img src={active.src} alt={`${active.title} chart from the model analysis`} />
-            <p>{active.description}</p>
-            <div className="evidence-dialog-controls">
-              <button type="button" aria-label="Previous evidence item" onClick={() => showEvidence(activeIndex - 1)}>←</button>
-              <button type="button" aria-label="Next evidence item" onClick={() => showEvidence(activeIndex + 1)}>→</button>
+            <div
+              className="evidence-dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-label={active.title}
+              data-presentation-interactive="true"
+            >
+              <div className="dialog-top"><div><span>Technical evidence</span><h3>{active.title}</h3></div><button type="button" aria-label="Close evidence" onClick={close}>×</button></div>
+              <img src={active.src} alt={`${active.title} chart from the model analysis`} />
+              <p>{active.description}</p>
+              <div className="evidence-dialog-controls">
+                <button type="button" aria-label="Previous evidence item" onClick={() => showEvidence(activeIndex - 1)}>←</button>
+                <button type="button" aria-label="Next evidence item" onClick={() => showEvidence(activeIndex + 1)}>→</button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
