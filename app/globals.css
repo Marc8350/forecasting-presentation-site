@@ -320,6 +320,7 @@ body {
 
 .story-section {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   padding: clamp(6.75rem, 9vh, 8.5rem) 0 clamp(4.5rem, 7vh, 7rem);
 }
